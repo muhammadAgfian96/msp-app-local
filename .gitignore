@@ -1,0 +1,15 @@
+images
+Untitled.ipynb
+test.py
+webcam2.html
+userdb.json
+test_app.py
+test_app.py
+__pycache__/*
+.vscode
+.machine_id.txt
+db_images
+db_image
+.ipynb_checkpoints
+*.xlsx
+*.csv
