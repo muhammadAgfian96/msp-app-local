@@ -8,8 +8,6 @@ import streamlit as st
 import pandas as pd
 from openpyxl import load_workbook
 
-from PIL import  Image
-from db_helper import DB_Handler
 from datetime import datetime
 from conf import configs
 # Import DictWriter class from CSV module

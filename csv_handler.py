@@ -8,7 +8,8 @@ import os
 import cv2
 import pandas as pd
 from pandas.core.frame import DataFrame
-from datetime import datetime
+from datetime import datetime, timedelta
+import numpy as np
 
 class CsvHandler:
     def __init__(self, filename='db_ffbs.csv', root_path='db_images'):
@@ -106,7 +107,7 @@ class CsvHandler:
                 if id_ not in line:
                     f.write(line)
                 else:
-                    print(line)
+                    print('id_delete', line)
                     id_deleted = line.split(',')[0]
 
         with open(self.filename, "r") as f:
@@ -128,42 +129,80 @@ class CsvHandler:
         self.df = df[cols]
         return self.df
     
-    def get_data_by_date(self, start_date:datetime, end_date:datetime) -> DataFrame:
-        if not isinstance(self.df, DataFrame):
-            self.get_data()
-        self.df[self.df['date']>=start_date and self.df['date']<=end_date]
-        return self.df
-    
-    def get_data_by_filter(self):
-        if not isinstance(self.df, DataFrame):
-            self.get_data()
+    def get_data_by_filter(self, **params):
+        # if not isinstance(self.df, DataFrame):
+        self.get_data()
+        df=self.df.copy()
         # do a filter task
+        start_date = params["start_date"]
+        end_date = params["end_date"]
+        grader_name = params["grader_name"]
+        grade_ffb = params["grade_ffb"]
+        unfresh = params["unfresh"]
+        old = params["old"]
+        dura = params["dura"]
+        dirty = params["dirty"]
+        wet = params["wet"]
+        long_stalk = params["long_stalk"]
+        temp_low_high = params["temp_low_high"]
+        lux_low_high = params["lux_low_high"]
 
-        return self.df
+        df = df[(df['date']>=start_date) & (df['date']<=end_date)]
+        df = df[df['grader_name'].isin(grader_name)]
+        df = df[df['grade_ffb'].isin(grade_ffb)]
+        df = df[df['unfresh'].isin(unfresh)]
+        df = df[df['old'].isin(old)]
+        df = df[df['dura'].isin(dura)]
+        df = df[df['dirty'].isin(dirty)]
+        df = df[df['wet'].isin(wet)]
+        df = df[df['long_stalk'].isin(long_stalk)]
+        df = df[df['temp_raw'].between(temp_low_high[0],temp_low_high[1])]
+        df = df[df['lux_raw'].between(lux_low_high[0],lux_low_high[1])]
+        return df
     
     def get_length_data(self):
-        if not isinstance(self.df, DataFrame):
-            self.get_data()
+        self.get_data()
+        print('make from get_length_data')
         return self.df.shape[0]
 
     def get_default_value(self):
-        if not isinstance(self.df, DataFrame):
-            self.get_data()
-            print('get data')
-        print(self.df)
-        default_val = {}
-        default_val["start_date"] = self.coll.distinct("time_input")[0]
-        default_val["end_date"] = self.coll.distinct("time_input")[-1] + datetime.timedelta(days=1)
-        default_val["grader_name"] = self.coll.distinct("grader_name")
-        default_val["grade_ffb"] = self.coll.distinct("grade_ffb")
-        default_val["unfresh"] = self.coll.distinct("unfresh")
-        default_val["old"] = self.coll.distinct("old")
-        default_val["dura"] = self.coll.distinct("dura")
-        default_val["dirty"] = self.coll.distinct("dirty")
-        default_val["wet"] = self.coll.distinct("wet")
-        default_val["long_stalk"] = self.coll.distinct("long_stalk")
-        return default_val
+        self.get_data()
+        print('get data')
+
+        lux_ls = self.df.lux_raw.sort_values(ascending=True).unique().tolist()
+        temp_ls = self.df.temp_raw.sort_values(ascending=True).unique().tolist()
+        start_time = self.npdt_dt(list(self.df.date.sort_values(ascending=True))[0])
+        end_time = self.npdt_dt(list(self.df.date.sort_values(ascending=True))[-1])
+
+        default = {}
+        default['start_time'] = start_time
+        default['end_time'] = end_time
+        default['grader_name'] = self.df.grader_name.unique().tolist()
+        default['grade_ffb'] = self.df.grade_ffb.unique().tolist()
+        
+        default['unfresh'] = self.df.unfresh.unique().tolist()
+        default['old'] = self.df.old.unique().tolist()
+        
+        default['dura'] = self.df.dura.unique().tolist()
+        default['dirty'] = self.df.dirty.unique().tolist()
+        
+        default['wet'] = self.df.wet.unique().tolist()
+        default['pest_damaged'] = self.df.pest_damaged.unique().tolist()
+        
+        default['long_stalk'] = self.df.long_stalk.unique().tolist()
+        
+        default['temp_low_high'] = (temp_ls[0], temp_ls[-1]) # little to big
+        default['lux_low_high'] = (lux_ls[0], lux_ls[-1]) 
+
+        return default
+
+    def npdt_dt(self, npdt_time):
+        hasil = (npdt_time - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+        return datetime.utcfromtimestamp(hasil)
+    
+    
 
 if __name__ == '__main__':
     db_csv = CsvHandler()
+    db_csv.get_length_data()
     db_csv.get_default_value()

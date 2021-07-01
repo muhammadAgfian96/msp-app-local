@@ -1,14 +1,5 @@
 import pandas as pd
 import streamlit as st
-import os
-
-from PIL import  Image
-from db_helper import DB_Handler
-from datetime import datetime
-from collections import Counter
-from conf import configs
-from easydict import EasyDict as edict
-
 
 def data_preprocessing(df):
     # get columns that we need [row, cols]

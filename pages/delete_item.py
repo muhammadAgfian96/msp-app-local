@@ -1,56 +1,14 @@
 import streamlit as st
 import plotly.graph_objects as go
-import os
-import json
-import time
 
-from PIL import  Image
-from db_helper import DB_Handler
 from datetime import datetime
-from collections import Counter
 from conf import configs
 
-from pages.summary import get_length_data, sidebar_summarize, get_data_by_filter, get_data
+from pages.summary import sidebar_summarize, get_data
+from csv_handler import CsvHandler
 
-
-        
+db_csv = CsvHandler()
 conf = configs()
-
-def delete_one_file(filename, id_):
-    exp_id = "04d2d438f41649058e933a6f39451de3"
-    
-    if len(id_) != len(exp_id):
-        print("id is not complete!")
-        return
-
-    with open(filename, "r") as f:
-        lines = f.readlines()
-        len_old_data = len(lines)
-
-    with open(filename, "w") as f:
-        for line in lines:
-            if id_ not in line:
-                f.write(line)
-            else:
-                print(line)
-                id_deleted = line.split(',')[0]
-
-    with open(filename, "r") as f:
-        lines = f.readlines()
-        len_new_data = len(lines)        
-                
-    if len_old_data > len_new_data:
-        print("succes delete")
-        return True, id_deleted
-    else:
-        print("not delete any items/ id not found")
-        return False, 0
-
-def delete_id(id_):
-    db = DB_Handler(**conf['db_setting'])
-    result = db.delete_id(id_)
-    db.close_connections()
-    return result
 
 def show_delete(all_data):
     all_data.sort_values(by=['date'], inplace=True, ascending=False)
@@ -96,39 +54,30 @@ def show_delete(all_data):
 
     for id_ in list(status_btn.keys()):
         if status_btn[id_]:
-            isDeleted, id_deleted = delete_one_file('db_ffbs.csv',id_)
+            isDeleted, id_deleted = db_csv.delete_one_file(id_)
             if isDeleted:
                 c1,c2=st.beta_columns((1,1))
                 st.sidebar.success(f'Delete {id_deleted}')
-                st.sidebar.warning(f'Please Refresh or Press \'R\'')
+                st.sidebar.warning(f'Please Refresh or  \'R\'')
             else:
                 st.sidebar.write('Not Data Deleted!')
-    pass
 
 def delete_page(state):
-    # if get_length_data() <=0:
-    #     st.warning(' No Data ')
-    #     return
+    if db_csv.get_length_data() <=0:
+        st.warning(' No Data ')
+        return
+
     params = sidebar_summarize(state)
     if params['filter'].lower() == 'all':
         st.write('## Last 5 Data')
         all_data = get_data()
+        start = params.get('start_date')
+        end = params.get('end_date')
+        st.write(f"## Data {start.day}/{start.month}/{start.year} - {end.day}/{end.month}/{end.year}")
     else:
         start = params.get('start_date')
         end = params.get('end_date')
-
-        filters_param = {
-            "start_date": start,
-            "end_date": end,
-            "grader_name" : params.get('grader_name'),
-            "grade_ffb" : params.get('grade_ffb'),
-            "unfresh" : params.get('unfresh'),
-            "old" : params.get('old'),
-            "dura" : params.get('dura'),
-            "dirty" : params.get('dirty'),
-            "wet" : params.get('wet'),
-            "long_stalk" : params.get('long_stalk'),
-        }
         st.write(f"## Data {start.day}/{start.month}/{start.year} - {end.day}/{end.month}/{end.year}")
-        all_data = get_data_by_filter(**filters_param)
+        
+        all_data = db_csv.get_data_by_filter(**params)
     show_delete(all_data)

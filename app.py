@@ -12,7 +12,6 @@ from streamlit.report_thread import get_report_ctx
 from streamlit.server.server import Server
 
 
-from pages.login import login_page, user_page
 from pages.excel import excel_page
 from pages.form import form_page
 from pages.summary import summarize_page, sidebar
