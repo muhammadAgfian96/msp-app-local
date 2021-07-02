@@ -1,4 +1,5 @@
 # Import DictWriter class from CSV module
+import csv
 from csv import DictWriter
 from uuid import uuid4
 import pandas as pd
@@ -75,7 +76,7 @@ class CsvHandler:
                 f.writelines(titles+"\n")
 
         # append data
-        with open(self.filename, 'a') as f_object:
+        with open(self.filename, 'a+', newline='') as f_object:
             dictwriter_object = DictWriter(f_object, fieldnames=field_names)
             dictwriter_object.writerow(data_ffbs)
             f_object.close()

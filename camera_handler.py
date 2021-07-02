@@ -1,8 +1,6 @@
 import cv2
 import streamlit as st
 
-
-
 def start_capturing(state, frameST):
     cap = cv2.VideoCapture(0)
     while state.start_rgb:

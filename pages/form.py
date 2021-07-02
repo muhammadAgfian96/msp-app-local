@@ -3,6 +3,7 @@ import cv2
 import os
 import uuid
 import numpy as np
+from numpy.lib.utils import info
 import streamlit as st
 
 import pandas as pd
@@ -21,12 +22,10 @@ from csv_handler import CsvHandler
 conf = configs()
 db_csv = CsvHandler()
 
-# @st.cache(allow_output_mutation=True)
-# def get_cap():
-#     return cv2.VideoCapture(0)
-
 def start_capturing(state, frameST):
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(state.sel_port_camera)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(state.sel_resolution_camera[0]))
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(state.sel_resolution_camera[1]))
     while state.start_rgb:
         ret, state.frame_rgb = cap.read()
         # Stop the program if reached end of video
@@ -41,6 +40,8 @@ def start_capturing(state, frameST):
             break
         state.frame_rgb = increase_brightness(state, state.frame_rgb)
         frameST.image(state.frame_rgb, channels="BGR")
+    cap.release()
+    print('cap release')
     return state.frame_rgb
 
 def start_capturing_msp(state, frameST):
@@ -61,12 +62,15 @@ def start_capturing_msp(state, frameST):
 
         frameST.image(state.frame_msp, channels="BGR")
     # state.frame_msp = frame_msp
-    print(state.frame_msp)
+    print('cap release')
+    cap.release()
+
 
 def section_details(state):
     cat_grade = ['Empty', 'Unripe', 'Underripe', ' Ripe', 'Overripe', 'Rotten']
     cat_val = ['Yes', 'No', 'NA']
     st.write('## Detail Data')
+    st.text(state.data_ffbs.get('id'))
     sb = st.beta_columns((2,1,1))
     grade_ffb = sb[0].selectbox('Grades', cat_grade,)
     temp_raw = sb[1].text_input('Temperature (Celcius)', state.data_ffbs.get('temp_raw') if state.data_ffbs.get('temp_raw') else '')
@@ -139,10 +143,46 @@ def increase_brightness(state, img):
     img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return img
 
+@st.cache()
+def list_camera():
+    is_working = True
+    dev_port = 0
+    isLinux = 0
+    ls_camera = []
+    information = []
+
+
+    while is_working:
+
+        if os.name =='nt':
+            camera_idx = dev_port+cv2.CAP_DSHOW
+        else:
+            camera_idx = dev_port
+        camera = cv2.VideoCapture(camera_idx)
+        if not camera.isOpened():
+            isLinux += 1
+            if isLinux >=2:
+                is_working = False
+            print("Port %s is not working." %camera_idx)
+        else:
+            is_reading, img = camera.read()
+            w = camera.get(3)
+            h = camera.get(4)
+            if is_reading:
+                print("Port %s is working and reads images (%s x %s)" %(camera_idx,h,w))
+                information.append("Port %s is working and reads images (%s x %s)" %(camera_idx,h,w))
+                ls_camera.append(camera_idx)
+                isLinux = 0
+            else:
+                print("Port %s for camera ( %s x %s) is present but does not reads." %(camera_idx,h,w))
+                # available_ports.append(dev_port)
+        
+        dev_port +=1
+    return ls_camera, information
+
 def form(state):
     uni_id = uuid4().hex
     state.data_ffbs.update({'id':str(uni_id)})
-    print(state.data_ffbs)
     with st.beta_expander('Settings Once'):
         st.write('## Grader Info')
         sb_1, sb_2 = st.beta_columns((1,1))
@@ -154,7 +194,13 @@ def form(state):
     sb = st.beta_columns((1,1))
     with sb[0].beta_expander('Settings Camera RGB'):
         st.write('## Camera RGB Settings')
+        ls_resolution = [(1280, 720), (1920,1080)]
+        ls_camera, info_cam = list_camera()
+        st.write(info_cam)
         state.value_brightness = st.number_input('brightness', 0, 100)
+        state.sel_resolution_camera = st.selectbox('Resolution', ls_resolution)
+        state.sel_port_camera = st.selectbox('List Devices', ls_camera)
+
 
     with sb[1].beta_expander('Settings Camera MSP'):
         st.write('## Camera MSP Settings')
@@ -182,12 +228,11 @@ def form_page(state):
 
 
     valid_img = isThereImage(state)
-    print('valid_img', valid_img)
     is_complete = True
 
     if state.data_ffbs.get('grader_name') == "":
         st.sidebar.warning('👶 Pls fill the **grader name**!')
-        print('Pls fill the grader name!')
+        # print('Pls fill the grader name!')
         is_complete=False
     elif state.data_ffbs.get('grader_name'):
         st.sidebar.info(f'hi, **{state.data_ffbs.get("grader_name")}**')
@@ -195,20 +240,20 @@ def form_page(state):
     if valid_img == False:
         is_complete = False
         st.sidebar.warning('🖼️ Pls fill **image**!')
-        print('Please fill image!')
+        # print('Please fill image!')
 
     if state.data_ffbs.get('temp_raw') == "":
         st.sidebar.warning('🌡️ Pls fill the **Temperature** Value!')
-        print('Pls fill the Temperature Value!')
+        # print('Pls fill the Temperature Value!')
         is_complete=False
 
     if state.data_ffbs.get('lux_raw') == "":
         st.sidebar.warning('☀️ Pls fill the **Lux** Value!')
-        print('Please fill the Lux Value!')
+        # print('Please fill the Lux Value!')
         is_complete=False
 
     if btn_submit and is_complete:
-        print('input data')
+        # print('input data')
         st.write(state.data_ffbs)
         isSuccesInput, resetData = db_csv.submit(
                 data_ffbs = state.data_ffbs.copy(),
@@ -216,12 +261,14 @@ def form_page(state):
                 frame_rgb = state.frame_rgb
             )
         st.success('Succes!')
+        
         if isSuccesInput:
-            state.frame_rgb = None
-            state.frame_msp = None
+            # state.frame_rgb = None
+            # state.frame_msp = None
             grader_name = state.data_ffbs.get('grader_name')
-            state.data_ffbs = resetData
-            state.data_ffbs = {'grader_name' : grader_name}
+            state.data_ffbs = {}
+            time.sleep(0.5)
+            state.data_ffbs.update({'id':'here_id', 'grader_name' : grader_name})
             state.isSuccesInput = True
         else:
             state.isSuccesInput = False
