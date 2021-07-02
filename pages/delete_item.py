@@ -4,13 +4,13 @@ import plotly.graph_objects as go
 from datetime import datetime
 from conf import configs
 
-from pages.summary import sidebar_summarize, get_data
+from pages.summary import sidebar_summarize, get_data, set_state_params_none
 from csv_handler import CsvHandler
 
 db_csv = CsvHandler()
 conf = configs()
 
-def show_delete(all_data):
+def show_delete(state, all_data):
     all_data.sort_values(by=['date'], inplace=True, ascending=False)
 
     data_dict={}
@@ -57,10 +57,16 @@ def show_delete(all_data):
             isDeleted, id_deleted = db_csv.delete_one_file(id_)
             if isDeleted:
                 c1,c2=st.beta_columns((1,1))
+
+                state.default = db_csv.get_default_value()
+                print(state.default)
+                set_state_params_none(state)
+
                 st.sidebar.success(f'Delete {id_deleted}')
                 st.sidebar.warning(f'Please Refresh or  \'R\'')
             else:
                 st.sidebar.write('Not Data Deleted!')
+
 
 def delete_page(state):
     if db_csv.get_length_data() <=0:
@@ -80,4 +86,4 @@ def delete_page(state):
         st.write(f"## Data {start.day}/{start.month}/{start.year} - {end.day}/{end.month}/{end.year}")
         
         all_data = db_csv.get_data_by_filter(**params)
-    show_delete(all_data)
+    show_delete(state, all_data)

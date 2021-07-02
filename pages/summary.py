@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from collections import Counter
 from conf import configs
 from csv_handler import CsvHandler
+# from easydict import Easydict as edict
 
 db_csv = CsvHandler()
 conf = configs()
@@ -67,6 +68,41 @@ def data_viz(all_data):
         X_cat, Y_cat = xy_data(all_data, cat)
         bar_graph(f'## {cat}', X_cat, Y_cat, col[i%3])
 
+
+def set_state_params_none(state):
+    if state.sel_grader_name not in state.default['grader_name']:
+        state.sel_grader_name = None
+    
+    if state.sel_grade not in state.default['grade_ffb']:
+        state.sel_grade = None
+    
+    if state.sel_unfresh not in state.default['unfresh']:
+        state.sel_unfresh = None
+    
+    if state.sel_old not in state.default['old']:
+        state.sel_old = None
+    
+    if state.sel_dura not in state.default['dura']:
+        state.sel_dura = None
+    
+    if state.sel_dirty not in state.default['dirty']:
+        state.sel_dirty = None
+    
+    if state.sel_wet not in state.default['wet']:
+        state.sel_wet = None
+    
+    if state.sel_pest_damaged not in state.default['pest_damaged']:
+        state.sel_pest_damaged = None
+    
+    if state.sel_long_stalk not in state.default['long_stalk']:
+        state.sel_long_stalk = None
+
+    if (int(state.sel_temp_range[0]) == state.default['temp_low_high'][0]) or (int(state.sel_temp_range[1]) == state.default['temp_low_high'][1]):
+        state.sel_temp_range = [state.default['temp_low_high'][0], state.default['temp_low_high'][1]]
+
+    if (int(state.sel_lux_range[0]) == state.default['lux_low_high'][0]) or (int(state.sel_lux_range[1]) == state.default['lux_low_high'][1]):
+        state.sel_lux_range = [state.default['lux_low_high'][0], state.default['lux_low_high'][1]]
+
 def get_params_filter(state):
     params = {}
     params['start_date'] = datetime(state.st_date.year, state.st_date.month, state.st_date.day)
@@ -88,40 +124,42 @@ def sidebar_summarize(state):
     params = dict()
     option_filter = ['all', 'filter']
     sb = st.sidebar
-    default = db_csv.get_default_value()
+    state.default = db_csv.get_default_value()
     state.sel_filter = sb.radio('filter', option_filter, option_filter.index(state.sel_filter) if state.sel_filter else 0)
     params['filter'] = state.sel_filter
-
     if state.sel_filter == option_filter[1] :
+        set_state_params_none(state)
+        col_1, col_2 = sb.beta_columns((1,1))
+        state.st_date = col_1.date_input('start date', value= state.st_date if state.st_date else state.default['start_time'])
+        state.end_date = col_2.date_input('end date', value= state.end_date if state.end_date else state.default['end_time'] + timedelta(days=1))
+        state.sel_grader_name = sb.multiselect('Grader Name', state.default['grader_name'], state.sel_grader_name if state.sel_grader_name else state.default['grader_name'])
+        state.sel_grade = sb.multiselect('Grades (Maturity)', state.default['grade_ffb'], state.sel_grade if state.sel_grade else state.default['grade_ffb'])
 
         col_1, col_2 = sb.beta_columns((1,1))
-
-        state.st_date = col_1.date_input('start date', value= state.st_date if state.st_date else default['start_time'])
-        state.end_date = col_2.date_input('end date', value= state.end_date if state.end_date else default['end_time'] + timedelta(days=1))
-        state.sel_grader_name = sb.multiselect('Grader Name', default['grader_name'], state.sel_grader_name if state.sel_grader_name else default['grader_name'])
-        state.sel_grade = sb.multiselect('Grades (Maturity)', default['grade_ffb'], state.sel_grade if state.sel_grade else default['grade_ffb'])
-
-        col_1, col_2 = sb.beta_columns((1,1))
-        state.sel_unfresh= col_1.multiselect('unfresh', default['unfresh'], state.sel_unfresh if state.sel_unfresh else default['unfresh'])
-        state.sel_old = col_2.multiselect('old', default['old'], state.sel_old if state.sel_old else default['old'])
+        state.sel_unfresh= col_1.multiselect('unfresh', state.default['unfresh'], state.sel_unfresh if state.sel_unfresh else state.default['unfresh'])
+        state.sel_old = col_2.multiselect('old', state.default['old'], state.sel_old if state.sel_old else state.default['old'])
         
         col_1, col_2 = sb.beta_columns((1,1))
-        state.sel_dura = col_1.multiselect('dura', default['dura'], state.sel_dura if state.sel_dura else default['dura'])
-        state.sel_dirty = col_2.multiselect('dirty', default['dirty'], state.sel_dirty if state.sel_dirty else default['dirty'])
+        state.sel_dura = col_1.multiselect('dura', state.default['dura'], state.sel_dura if state.sel_dura else state.default['dura'])
+        state.sel_dirty = col_2.multiselect('dirty', state.default['dirty'], state.sel_dirty if state.sel_dirty else state.default['dirty'])
         
         col_1, col_2 = sb.beta_columns((1,1))
-        state.sel_wet = col_1.multiselect('wet', default['wet'], state.sel_wet if state.sel_wet else default['wet'])
-        state.sel_long_stalk = col_2.multiselect('long_stalk', default['long_stalk'], state.sel_long_stalk if state.sel_long_stalk else default['long_stalk'])
+        state.sel_wet = col_1.multiselect('wet', state.default['wet'], state.sel_wet if state.sel_wet else state.default['wet'])
+        state.sel_long_stalk = col_2.multiselect('long_stalk', state.default['long_stalk'], state.sel_long_stalk if state.sel_long_stalk else state.default['long_stalk'])
 
         col_1, col_2 = sb.beta_columns((1,1))
-        state.sel_pest_damaged = col_1.multiselect('pest_damaged', default['pest_damaged'], state.sel_wet if state.sel_wet else default['pest_damaged'])
-        state.sel_temp_range = st.sidebar.slider('temp', min_value=default['temp_low_high'][0], max_value=default['temp_low_high'][1],value= state.sel_temp_range if state.sel_temp_range else default['temp_low_high'])
-        state.sel_lux_range = st.sidebar.slider('lux', min_value=default['lux_low_high'][0], max_value=default['lux_low_high'][1],value=state.sel_lux_range if state.sel_lux_range else default['lux_low_high'])
+        state.sel_pest_damaged = col_1.multiselect('pest_damaged', state.default['pest_damaged'], state.sel_wet if state.sel_wet else state.default['pest_damaged'])
+        # min_value=state.default['temp_low_high'][0], max_value=state.default['temp_low_high'][1]
+        # min_value=state.default['lux_low_high'][0], max_value=state.default['lux_low_high'][1]
+        state.sel_temp_range = st.sidebar.slider('temp', min_value=state.default['temp_low_high'][0], max_value=state.default['temp_low_high'][1], value= state.sel_temp_range if state.sel_temp_range else state.default['temp_low_high'])
+        state.sel_lux_range = st.sidebar.slider('lux',   min_value=state.default['lux_low_high'][0], max_value=state.default['lux_low_high'][1], value=state.sel_lux_range if state.sel_lux_range else state.default['lux_low_high'])
 
         params.update(get_params_filter(state))
+
+
     else:
-        start_date =  default['start_time']
-        end_date =  default['end_time']
+        start_date =  state.default['start_time']
+        end_date =  state.default['end_time']
         params['start_date'] = datetime(start_date.year, start_date.month, start_date.day)
         params['end_date'] = datetime(end_date.year, end_date.month, end_date.day)
         if params['end_date'] == params['start_date']:
@@ -141,9 +179,12 @@ def summarize_page(state):
     end = params.get('end_date')
     if params['filter'].lower() == 'all':
         st.write('## All Data')
+        state.default = db_csv.get_default_value()
         all_data = db_csv.get_data()
         st.write(f"## Data {start.day}/{start.month}/{start.year} - {end.day}/{end.month}/{end.year}")
     else:
+        state.default = db_csv.get_default_value()
+
         st.write(f"## Data {start.day}/{start.month}/{start.year} - {end.day}/{end.month}/{end.year}")
         # all_data = get_data_by_date(params.get('start_date'), params.get('end_date'))
         all_data = db_csv.get_data_by_filter(**params)

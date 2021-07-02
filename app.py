@@ -43,7 +43,6 @@ def main():
 
     pages[sidebar(pages)](state)
 
-
     st.write('End Page')
     state.sync()
 

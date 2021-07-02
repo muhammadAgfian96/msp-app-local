@@ -11,6 +11,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from datetime import datetime, timedelta
 import numpy as np
+# from easydict import EasyDict as edict
 
 class CsvHandler:
     def __init__(self, filename='db_ffbs.csv', root_path='db_images'):
@@ -145,7 +146,7 @@ class CsvHandler:
         dirty = params["dirty"]
         wet = params["wet"]
         long_stalk = params["long_stalk"]
-        temp_low_high = params["temp_low_high"]
+        temp_low_high =params["temp_low_high"]
         lux_low_high = params["lux_low_high"]
 
         df = df[(df['date']>=start_date) & (df['date']<=end_date)]
@@ -192,8 +193,13 @@ class CsvHandler:
         
         default['long_stalk'] = self.df.long_stalk.unique().tolist()
         
-        default['temp_low_high'] = (temp_ls[0], temp_ls[-1]) # little to big
-        default['lux_low_high'] = (lux_ls[0], lux_ls[-1]) 
+        if temp_ls[0] == temp_ls[-1]:
+            temp_ls.append(temp_ls[0]+1)
+        if lux_ls[0] == lux_ls[-1]:
+            lux_ls.append(lux_ls[0]+1)
+            
+        default['temp_low_high'] = [temp_ls[0], temp_ls[-1]] # little to big
+        default['lux_low_high'] = [lux_ls[0], lux_ls[-1]]
 
         return default
 
