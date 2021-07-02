@@ -54,14 +54,23 @@ class CMyCallback:
     def image(self):
         """Property: return PyIStImage of the grabbed image."""
         duplicate = None
-        raw_img_msp = None
         self._lock.acquire()
         if self._image is not None:
             duplicate = self._image.copy()
+        self._lock.release()
+        return duplicate
+    
+    @property
+    def stapiraw_data(self):
+        """Property: return PyIStImage of the grabbed image."""
+        raw_img_msp = None
+        self._lock.acquire()
         if self._raw_msp_img is not None:
             raw_img_msp = copy.deepcopy(self._raw_msp_img)
         self._lock.release()
-        return duplicate, raw_img_msp
+        return raw_img_msp
+
+    
 
     def datastream_callback(self, handle=None, context=None):
         """

@@ -71,7 +71,8 @@ def start_capturing_msp(state, frameST):
         # Display image using OpenCV.
         while state.start_msp:
             print('go')
-            state.frame_msp, state.raw_img = my_callback.image
+            state.frame_msp = my_callback.image
+            # state.raw_img = my_callback.stapiraw_data
             if state.frame_msp is not None:
                 frameST.image(state.frame_msp)
                 print('frame')
