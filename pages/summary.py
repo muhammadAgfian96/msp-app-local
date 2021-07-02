@@ -131,7 +131,7 @@ def sidebar_summarize(state):
     state.sel_filter = sb.radio('filter', option_filter, option_filter.index(state.sel_filter) if state.sel_filter else 0)
     params['filter'] = state.sel_filter
     if state.sel_filter == option_filter[1] :
-        set_state_params_none(state)
+        # set_state_params_none(state)
         col_1, col_2 = sb.beta_columns((1,1))
         state.st_date = col_1.date_input('start date', value= state.st_date if state.st_date else state.default['start_time'])
         state.end_date = col_2.date_input('end date', value= state.end_date if state.end_date else state.default['end_time'] + timedelta(days=1))

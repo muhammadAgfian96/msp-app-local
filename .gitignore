@@ -13,3 +13,5 @@ db_image
 .ipynb_checkpoints
 *.xlsx
 *.csv
+.gitignore
+check_camera.py

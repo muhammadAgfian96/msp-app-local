@@ -11,6 +11,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from datetime import datetime, timedelta
 import numpy as np
+from msp_cam.msp import save_stapiraw, save_stapiraw_to_imgs, raw_to_opencv_img
 # from easydict import EasyDict as edict
 
 class CsvHandler:
@@ -19,30 +20,38 @@ class CsvHandler:
         self.root_path_img = root_path
         self.df = None
 
-    def process_image(self, frame_msp, frame_rgb):
+    def process_image(self, raw_msp, frame_rgb):
         # check forlder,
         if not os.path.exists(self.folder_image):
             # make
             os.makedirs(self.folder_image)
 
         # write
-        msp_path = os.path.join(self.folder_image, 'msp_' + str(self.id_) + '.tif')
+        stapiraw_path = os.path.join(self.folder_image, 'stapiraw_' + str(self.id_))
         rgb_path = os.path.join(self.folder_image, 'rgb_' + str(self.id_) + '.jpg')
         try:
-            cv2.imwrite(msp_path, frame_msp)
+
             cv2.imwrite(rgb_path, frame_rgb)
+            print('write image')
+            print('running raw')
+            isSavedMsp, stapiraw_path = save_stapiraw(raw_msp, stapiraw_path)
+            print('get stapiraw')
+            
+            save_stapiraw_to_imgs(stapiraw_path)
+            print('save imgs msp')
+
         except :
             print('ERROR IMAGE')
             return False
 
         path_imgs = {
-            'msp_path' : msp_path,
+            'msp_path' : stapiraw_path,
             'rgb_path' : rgb_path
         }
         print('succes create image')
         return True, path_imgs
 
-    def submit(self, data_ffbs, frame_msp, frame_rgb):
+    def submit(self, data_ffbs, frame_msp, raw_msp, frame_rgb):
         self.id_ = data_ffbs.get('id')
         self.folder_image = os.path.join(self.root_path_img, self.id_)
         
@@ -51,8 +60,7 @@ class CsvHandler:
         })
 
         # save_image
-        isValid, path_imgs = self.process_image(frame_msp= frame_msp, 
-                                    frame_rgb=frame_rgb)
+        isValid, path_imgs = self.process_image(raw_msp = raw_msp, frame_rgb=frame_rgb)
         data_ffbs.update(path_imgs)
         field_names = list(data_ffbs.keys())
 

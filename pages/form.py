@@ -86,7 +86,7 @@ def section_image(state):
     if state.start_msp:
         state.frame_msp = start_capturing_msp(state, frameST2)
     if state.frame_msp is not None:
-        frameST2.image(state.frame_msp, channels="BGR")
+        frameST2.image(state.frame_msp) # only single channels (gray)
 
 def form(state):
     uni_id = uuid4().hex
@@ -122,7 +122,7 @@ def form(state):
 
 def isThereImage(state):
     valid_img = True
-    if state.frame_msp is None or state.frame_rgb is None:
+    if state.frame_msp is None or state.frame_rgb is None or state.raw_img is None:
         valid_img = False
     return valid_img
 
@@ -165,14 +165,16 @@ def form_page(state):
         st.write(state.data_ffbs)
         isSuccesInput, resetData = db_csv.submit(
                 data_ffbs = state.data_ffbs.copy(),
-                frame_msp = state.frame_msp, 
+                raw_msp = state.raw_img, 
+                frame_msp = state.frame_msp,
                 frame_rgb = state.frame_rgb
             )
         st.success('Succes!')
         
         if isSuccesInput:
-            # state.frame_rgb = None
-            # state.frame_msp = None
+            state.frame_rgb = None
+            state.frame_msp = None
+            state.raw_img = None
             grader_name = state.data_ffbs.get('grader_name')
             state.data_ffbs = {}
             time.sleep(0.5)

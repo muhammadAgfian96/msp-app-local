@@ -1,6 +1,10 @@
 import cv2
+import stapipy as sp
+import numpy as np
 import streamlit as st
 import os
+from msp_cam.msp import CMyCallback as MSP_Callback
+
 
 
 def start_capturing(state, frameST):
@@ -26,24 +30,66 @@ def start_capturing(state, frameST):
     return state.frame_rgb
 
 def start_capturing_msp(state, frameST):
-    cap = cv2.VideoCapture(0)
-    while state.start_msp:
-        ret, state.frame_msp = cap.read()
-        # Stop the program if reached end of video
-        print('asd')
-        if not ret:
-            print("Done processing !!!")
-            frameST.write('Done Capturing')
-            frameST.image(state.frame_msp, channels="BGR")
-            # Release device
-            cap.release()
-            state.start_msp = False
-            state.stop_msp = False
-            break
-        frameST.image(state.frame_msp, channels="BGR")
-    # state.frame_msp = frame_msp
-    print('cap release')
-    cap.release()
+    my_callback = MSP_Callback()
+    cb_func = my_callback.datastream_callback
+    try:
+        # Initialize StApi before using.
+        sp.initialize()
+        print('init cam msp')
+        # Create a system object for device scan and connection.
+        sp_system = sp.create_system()
+        print('create system')
+        # Connect to first detected device.
+        sp_device = sp_system.create_first_device()
+
+        # Display DisplayName of the device.
+        print('Device=', sp_device.info.display_name)
+
+        # Create a datastream object for handling image stream data.
+        sp_datastream = sp_device.create_datastream()
+        print('create_datastream')
+        # Register callback for datastream
+        callback = sp_datastream.register_callback(cb_func)
+        print('register_callback')
+
+        # Start the image acquisition of the host (local machine) side.
+        sp_datastream.start_acquisition()
+        print('start_acquisition')
+
+        # Start the image acquisition of the camera side.
+        sp_device.acquisition_start()
+        print('sp_device start_acquisition')
+
+        # Get device nodemap to access the device settings.
+        # remote_nodemap = sp_device.remote_port.nodemap
+
+        # # Create and start a thread for auto function configuration.
+        # autofunc_thread = threading.Thread(target=do_auto_functions,
+        #                                    args=(remote_nodemap,))
+        # autofunc_thread.start()
+
+        # Display image using OpenCV.
+        while state.start_msp:
+            print('go')
+            state.frame_msp, state.raw_img = my_callback.image
+            if state.frame_msp is not None:
+                frameST.image(state.frame_msp)
+                print('frame')
+                # cv2.imshow('image', state.frame_msp)
+            key_input = cv2.waitKey(1)
+            if key_input != -1:
+                break
+
+        # autofunc_thread.join()
+
+        # Stop the image acquisition of the camera side
+        sp_device.acquisition_stop()
+
+        # Stop the image acquisition of the host side
+        sp_datastream.stop_acquisition()
+
+    except Exception as exception:
+        print(exception)
 
 # =================== list devices ==============================
 
