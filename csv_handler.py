@@ -170,7 +170,7 @@ class CsvHandler:
     def get_default_value(self):
         self.get_data()
         print('get data')
-
+        
         lux_ls = self.df.lux_raw.sort_values(ascending=True).unique().tolist()
         temp_ls = self.df.temp_raw.sort_values(ascending=True).unique().tolist()
         start_time = self.npdt_dt(list(self.df.date.sort_values(ascending=True))[0])
@@ -197,7 +197,7 @@ class CsvHandler:
             temp_ls.append(temp_ls[0]+1)
         if lux_ls[0] == lux_ls[-1]:
             lux_ls.append(lux_ls[0]+1)
-            
+
         default['temp_low_high'] = [temp_ls[0], temp_ls[-1]] # little to big
         default['lux_low_high'] = [lux_ls[0], lux_ls[-1]]
 

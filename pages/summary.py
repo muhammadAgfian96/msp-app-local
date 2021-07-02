@@ -124,6 +124,9 @@ def sidebar_summarize(state):
     params = dict()
     option_filter = ['all', 'filter']
     sb = st.sidebar
+    if db_csv.get_length_data() <=0:
+        st.sidebar.warning('No Data')
+        return
     state.default = db_csv.get_default_value()
     state.sel_filter = sb.radio('filter', option_filter, option_filter.index(state.sel_filter) if state.sel_filter else 0)
     params['filter'] = state.sel_filter
