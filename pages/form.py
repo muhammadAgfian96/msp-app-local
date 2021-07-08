@@ -83,8 +83,8 @@ def section_image(state):
         frameST1.image(state.frame_rgb, channels="BGR")
         
 
-    state.start_msp = colss[2].button('Start Capture MSP')
-    state.stop_msp = colss[3].button('Capture MSP')
+    state.start_msp = colss[2].button('Take Capture MSP')
+    # state.stop_msp = colss[3].button('Capture MSP')
     if state.start_msp:
         save_msp_now()
         # state.frame_msp = start_capturing_msp(state, frameST2)

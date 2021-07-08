@@ -29,7 +29,7 @@ def excel_page(state):
     st.warning('Ooopsss! This Page is Not Yet Ready!')
     new_df = read_file(file_path='db_ffbs.csv')
     df = data_preprocessing(new_df)
-    st.write(df)
+    st.write(df.head(10))
     clean_db_images()
 
 
