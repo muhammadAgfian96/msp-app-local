@@ -86,11 +86,12 @@ def section_image(state):
     state.start_msp = colss[2].button('Take Capture MSP')
     # state.stop_msp = colss[3].button('Capture MSP')
     if state.start_msp:
-        save_msp_now()
-        # state.frame_msp = start_capturing_msp(state, frameST2)
-        file_msp_loc = os.path.join('temp_msp',
-                                    'temporary_msp' + ".jpg")
-        state.frame_msp = Image.open(file_msp_loc)
+        with st.spinner('Progress ... Take Picture MSP'):
+            save_msp_now()
+            # state.frame_msp = start_capturing_msp(state, frameST2)
+            file_msp_loc = os.path.join('temp_msp',
+                                        'temporary_msp' + ".jpg")
+            state.frame_msp = Image.open(file_msp_loc)
 
     if state.frame_msp is not None:
         frameST2.image(state.frame_msp) # only single channels (gray)
