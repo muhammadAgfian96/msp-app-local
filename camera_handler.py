@@ -60,17 +60,10 @@ def start_capturing_msp(state, frameST):
         sp_device.acquisition_start()
         print('sp_device start_acquisition')
 
-        # Get device nodemap to access the device settings.
-        # remote_nodemap = sp_device.remote_port.nodemap
-
-        # # Create and start a thread for auto function configuration.
-        # autofunc_thread = threading.Thread(target=do_auto_functions,
-        #                                    args=(remote_nodemap,))
-        # autofunc_thread.start()
-
         # Display image using OpenCV.
         while state.start_msp:
             print('go')
+            # state.frame_msp, state.raw_img = my_callback.image
             state.frame_msp = my_callback.image
             # state.raw_img = my_callback.stapiraw_data
             if state.frame_msp is not None:
@@ -81,8 +74,6 @@ def start_capturing_msp(state, frameST):
             if key_input != -1:
                 break
 
-        # autofunc_thread.join()
-
         # Stop the image acquisition of the camera side
         sp_device.acquisition_stop()
 
@@ -90,7 +81,7 @@ def start_capturing_msp(state, frameST):
         sp_datastream.stop_acquisition()
 
     except Exception as exception:
-        print(exception)
+        print('error cam msp',exception)
 
 # =================== list devices ==============================
 

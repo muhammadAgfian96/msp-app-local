@@ -53,23 +53,15 @@ class CMyCallback:
     @property
     def image(self):
         """Property: return PyIStImage of the grabbed image."""
-        duplicate = None
+        img_duplicate = None
+        stapiraw = None
         self._lock.acquire()
         if self._image is not None:
-            duplicate = self._image.copy()
+            img_duplicate = self._image.copy()
+            # stapiraw = self._raw_msp_img
         self._lock.release()
-        return duplicate
+        return img_duplicate
     
-    @property
-    def stapiraw_data(self):
-        """Property: return PyIStImage of the grabbed image."""
-        raw_img_msp = None
-        self._lock.acquire()
-        if self._raw_msp_img is not None:
-            raw_img_msp = copy.deepcopy(self._raw_msp_img)
-        self._lock.release()
-        return raw_img_msp
-
     
 
     def datastream_callback(self, handle=None, context=None):
@@ -127,9 +119,10 @@ class CMyCallback:
                     nparr = cv2.resize(nparr, None,
                                        fx=DISPLAY_RESIZE_FACTOR,
                                        fy=DISPLAY_RESIZE_FACTOR)
+
                     self._lock.acquire()
+                    # self._raw_msp_img = sp_image.clone()
                     self._image = nparr
-                    self._raw_msp_img = sp_image
                     self._lock.release()
 
 # ======= my own function =====

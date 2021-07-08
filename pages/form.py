@@ -19,6 +19,8 @@ from datetime import datetime
 import time
 from csv_handler import CsvHandler
 from camera_handler import  *
+from msp_cam.save_msp import save_img as save_msp_now
+from PIL import Image
 
 conf = configs()
 db_csv = CsvHandler()
@@ -84,7 +86,12 @@ def section_image(state):
     state.start_msp = colss[2].button('Start Capture MSP')
     state.stop_msp = colss[3].button('Capture MSP')
     if state.start_msp:
-        state.frame_msp = start_capturing_msp(state, frameST2)
+        save_msp_now()
+        # state.frame_msp = start_capturing_msp(state, frameST2)
+        file_msp_loc = os.path.join('temp_msp',
+                                    'temporary_msp' + ".jpg")
+        state.frame_msp = Image.open(file_msp_loc)
+
     if state.frame_msp is not None:
         frameST2.image(state.frame_msp) # only single channels (gray)
 
@@ -114,6 +121,7 @@ def form(state):
         st.write('## Camera MSP Settings')
 
     with st.beta_expander('Camera', False):
+
         section_image(state)
 
     section_details(state)
@@ -122,7 +130,7 @@ def form(state):
 
 def isThereImage(state):
     valid_img = True
-    if state.frame_msp is None or state.frame_rgb is None or state.raw_img is None:
+    if state.frame_msp is None or state.frame_rgb is None:
         valid_img = False
     return valid_img
 
@@ -165,8 +173,6 @@ def form_page(state):
         st.write(state.data_ffbs)
         isSuccesInput, resetData = db_csv.submit(
                 data_ffbs = state.data_ffbs.copy(),
-                raw_msp = state.raw_img, 
-                frame_msp = state.frame_msp,
                 frame_rgb = state.frame_rgb
             )
         st.success('Succes!')
