@@ -14,8 +14,8 @@ def configs():
         'server': server,
 
         # streamlit app
-        'page_title' : 'Multispectral Data Entry',
-        'page_icon' : None,
+        'page_title' : 'msp collector app',
+        'page_icon' : '📝',
         'page_layout': 'wide',
         'initial_sidebar_state': 'auto',
         # graph settings
