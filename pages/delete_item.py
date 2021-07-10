@@ -6,7 +6,7 @@ from conf import configs
 
 from pages.summary import sidebar_summarize, get_data, set_state_params_none
 from csv_handler import CsvHandler
-
+import os
 db_csv = CsvHandler()
 conf = configs()
 
@@ -69,6 +69,9 @@ def show_delete(state, all_data):
 
 
 def delete_page(state):
+    if os.path.exists('db_ffbs.csv') == False:
+        st.warning(' No Data ')
+        return
     if db_csv.get_length_data() <=0:
         st.warning(' No Data ')
         return

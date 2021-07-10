@@ -3,6 +3,8 @@ import pandas as pd
 import streamlit as st
 import os
 import shutil
+from datetime import datetime as dt
+from zipfile import ZipFile
 
 def data_preprocessing(df):
     # get columns that we need [row, cols]
@@ -26,12 +28,27 @@ def read_file(file_path):
     return df[cols]
 
 def excel_page(state):
-    st.warning('Ooopsss! This Page is Not Yet Ready!')
+    if os.path.exists('db_ffbs.csv') == False:
+        st.warning(' No Data ')
+        return
+    # st.warning('Ooopsss! This Page is Not Yet Ready!')
     new_df = read_file(file_path='db_ffbs.csv')
     df = data_preprocessing(new_df)
     st.write(df.head(10))
     clean_db_images()
-
+    status_zip = st.sidebar.empty()
+    if st.button('Zip and Delete'):
+        now_= dt.now()
+        now_str = now_.strftime("%m%d%Y_%H%M%S")
+        folder_dst = os.path.join(now_str, 'db_images')
+        os.makedirs(now_str, exist_ok=True)
+        shutil.copytree('db_images', folder_dst)
+        shutil.copy('db_ffbs.csv', now_str)
+        shutil.make_archive(now_str, 'zip', now_str)
+        status_zip.success(f'Success created {now_str}!')
+        shutil.rmtree('db_images')
+        os.remove('db_ffbs.csv')
+        status_zip.success(f'Old Data Deleted!')
 
 def clean_db_images():
     path = os.path.join('db_images')

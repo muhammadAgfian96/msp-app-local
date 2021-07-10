@@ -6,6 +6,7 @@ from collections import Counter
 from conf import configs
 from csv_handler import CsvHandler
 # from easydict import Easydict as edict
+import os
 
 db_csv = CsvHandler()
 conf = configs()
@@ -172,6 +173,9 @@ def sidebar_summarize(state):
 
 
 def summarize_page(state):
+    if os.path.exists('db_ffbs.csv') == False:
+        st.warning(' No Data ')
+        return
     len_Data = db_csv.get_length_data()
     if  len_Data <=0:
         st.warning(' No Data ')
