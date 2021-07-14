@@ -17,3 +17,6 @@ db_image
 check_camera.py
 temp_msp
 *.zip
+db_tiff
+histogrammaker_v2.py
+msi_splitter.py

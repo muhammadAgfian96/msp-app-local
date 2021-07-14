@@ -16,6 +16,7 @@ from pages.excel import excel_page
 from pages.form import form_page
 from pages.summary import summarize_page, sidebar
 from pages.delete_item import delete_page
+from pages.post_processing import post_processing_page
 
 
 conf = configs()
@@ -38,7 +39,8 @@ def main():
         'Excel Page' : excel_page,
         'Form Submit': form_page,
         'Show Datas': summarize_page,
-        'Delete Item': delete_page
+        'Delete Item': delete_page,
+        'Post Processing': post_processing_page
     }
 
     pages[sidebar(pages)](state)
