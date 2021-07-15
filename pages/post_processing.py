@@ -48,8 +48,11 @@ def convert_to_tif(state):
     # result = True
     try:
         # init first
+        print('init')
         sp.initialize()
-        st_system = sp.create_system()
+        print('create')
+        # st_system = sp.create_system()
+        print('done crte')
 
         # prepare converter
         st_stillimage_filer = sp.create_filer(sp.EStFilerType.StillImage)
@@ -68,7 +71,8 @@ def convert_to_tif(state):
         splitting(file_path, name_file, folder_dst, state.pp_put_text)
         result = True
         st.info(f'saved on {file_path}')
-        state.pp_file_stapiraw = ''
+        # state.pp_file_stapiraw = ''
+        print('done')
     except :
         result = False
     return result
@@ -88,31 +92,31 @@ def sel_band(img, band, put_text=True):
         raw_row = [(i,i+1) for i in range(0, h, 4)]
         sel_row =  functools.reduce(operator.iconcat, raw_row, [])
         sel_col = sel_row
-        text = 'BLUE'
+        text = '580'
         
     if band == Band.RED:
         raw_row = [(i,i+1) for i in range(2, h, 4)]
         sel_row =  functools.reduce(operator.iconcat, raw_row, [])
         sel_col = sel_row
-        text = 'RED'
+        text = '820'
 
     if band == Band.GREEN:
         ls = [(i,i+1) for i in range(0, h, 4)]
         sel_row =  functools.reduce(operator.iconcat, ls, [])
         ls = [(i,i+1) for i in range(2, w, 4)]
         sel_col =  functools.reduce(operator.iconcat, ls, [])
-        text = 'GREEN'
+        text = '735'
 
     if band == Band.YELLOW:
         ls = [(i,i+1) for i in range(2, h, 4)]
         sel_row =  functools.reduce(operator.iconcat, ls, [])
         ls = [(i,i+1) for i in range(0, w, 4)]
         sel_col =  functools.reduce(operator.iconcat, ls, [])
-        text = 'YELLOW'
+        text = '660'
 
     sel_img = img[sel_row, :][:, sel_col].copy()
     if put_text:
-        sel_img = cv2.putText(sel_img, text, (100,100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+        sel_img = cv2.putText(sel_img, text, (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
     return sel_img
 
 def splitting(path_tif, name_file, model_folder, put_text):
@@ -168,9 +172,9 @@ def histogram(state):
         
         plt.figure()
         plt.bar(range(256), h)
-        plt.title(file)
+        plt.title(file.split('/')[-1]+'_UNnormalized')
         x1,x2,y1,y2=plt.axis()
-        plt.axis((x1,x2,0,6000))
+        plt.axis((x1,x2,0, 6000))
         plt.savefig(file.split('.tif')[0]+'_hist_UNnormalized.jpg')
         plt.close()
         
@@ -181,7 +185,7 @@ def histogram(state):
         
         plt.figure()
         plt.bar(range(256), norm_h)
-        plt.title(file)
+        plt.title(file.split('/')[-1]+'_normalized')
         x1,x2,y1,y2=plt.axis()
         plt.axis((x1,x2,0,0.025))
         plt.savefig(file.split('.tif')[0]+'_hist_Normalized.jpg')
