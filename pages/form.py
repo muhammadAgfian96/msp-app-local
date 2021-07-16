@@ -114,7 +114,7 @@ def form(state):
         ls_camera, info_cam = list_camera()
         st.write(info_cam)
         state.value_brightness = st.number_input('brightness', 0, 100)
-        state.sel_resolution_camera = st.selectbox('Resolution', ls_resolution)
+        state.sel_resolution_camera = st.selectbox('Resolution', ls_resolution, 2)
         state.sel_port_camera = st.selectbox('List Devices', ls_camera)
 
 
