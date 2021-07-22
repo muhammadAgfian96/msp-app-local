@@ -7,6 +7,7 @@ from conf import configs
 from csv_handler import CsvHandler
 # from easydict import Easydict as edict
 import os
+import numpy as np
 
 db_csv = CsvHandler()
 conf = configs()
@@ -43,11 +44,57 @@ def data_viz(all_data):
                 )],
             layout = layout_custom
             )
+        fig.update_layout(plot_bgcolor='rgba(0,0,0,0)')
         place.write(fig)
 
+    def histogram_graph( title, X, Y, place=st):
+        # place.write(title)
+        layout_custom =  {
+                "title": title.split(' ')[-1].upper(),
+                "xaxis": {"title": title.split(' ')[-1], 'side': 'bottom'},
+                "yaxis": {"title": "count"},
+                'width': 500,
+                'height':400,
+                'autosize':False,
+        }
+        if 'grader_name' in title or 'grade_ffb' in title:
+            layout_custom =  {
+                    "title": title.split(' ')[-1].upper(),
+                    "xaxis": {"title": title.split(' ')[-1], 'side': 'bottom'},
+                    "yaxis": {"title": "count"},
+                    'autosize':True,
+                    
+            }
+        fig=   go.Figure(
+            data=[
+                go.Histogram(
+                    x=X,
+                    y=Y,
+                    marker_color=conf['colors_graph_gradient'][i],
+                    marker_line_color='rgb(17, 69, 126)',
+                    marker_line_width=1,
+                    opacity=0.7,
+                    nbinsx=100
+                    )], 
+                layout = layout_custom)
+        # fig = go.Figure(
+        #     [go.Bar(
+        #         x=X, y=Y,
+        #         marker_color=conf['colors_graph_gradient'][i],
+        #         marker_line_color='rgb(17, 69, 126)',
+        #         marker_line_width=1,
+        #         opacity=0.7
+        #         )],
+        #     layout = layout_custom
+        fig.update_layout(plot_bgcolor='rgba(0,0,0,0)')
+
+        place.write(fig)
+
+
+    
     def xy_data(all_data, category):
         # cat = [data.get(category) for data in all_data]
-        print('asd',all_data )
+        # print('asd',all_data )
         cat_count = Counter(all_data[category].values.tolist())
         # st.write(gradeffb_count)
         X = list(cat_count.keys())
@@ -55,19 +102,47 @@ def data_viz(all_data):
         X = ["[empty]" if x == '' else x for x in X ]
         return X,Y
 
+    def xy_data_float(all_data, category):
+        # cat = [data.get(category) for data in all_data]
+        # print('asd',all_data )
+        cat_count = Counter(all_data[category].values.tolist())
+        # st.write(gradeffb_count)
+        X = list(cat_count.keys())
+        Y = list(cat_count.values())
+        print(type(Y[0]))
+        X = [np.nan if x == '' else float(x) for x in X ]
+        return X,Y
+
+    def xy_data_int(all_data, category):
+        # cat = [data.get(category) for data in all_data]
+        # print('asd',all_data )
+        cat_count = Counter(all_data[category].values.tolist())
+        # st.write(gradeffb_count)
+        X = list(cat_count.keys())
+        Y = list(cat_count.values())
+        print(type(Y[0]))
+        X = [np.nan if x == '' else int(x) for x in X ]
+        return X,Y
+
     col = st.beta_columns((1,1))
-    # cols = ['date',  'grader_name', 'grade_ffb', 'temp_raw', 'lux_raw', 'pest_damaged', 'long_stalk', 'wet', 'dirty', 'dura', 'old', 'unfresh', 'notes', 'tags',  'msp_path', 'rgb_path']
 
     ls_cat = ['grader_name','grade_ffb']
     for i, cat in enumerate(ls_cat):
         X_cat, Y_cat = xy_data(all_data, cat)
         bar_graph(f'## {cat}', X_cat, Y_cat, col[i%2])
-    # ls_cat = ['unfresh','old', 'dura', 'dirty', 'wet', 'long_stalk', 'pest_damaged']
+
     col = st.beta_columns((1,1,1))
     ls_cat = ['temp_raw', 'lux_raw', 'pest_damaged', 'long_stalk', 'wet', 'dirty', 'dura', 'old', 'unfresh']
     for i, cat in enumerate(ls_cat):
-        X_cat, Y_cat = xy_data(all_data, cat)
-        bar_graph(f'## {cat}', X_cat, Y_cat, col[i%3])
+        if cat  == 'temp_raw':
+            X_cat, Y_cat = xy_data_float(all_data, cat)
+            histogram_graph( f'## {cat}', X_cat, Y_cat, place=col[i%3])
+        elif cat == 'lux_raw':
+            X_cat, Y_cat = xy_data_int(all_data, cat)
+            histogram_graph( f'## {cat}', X_cat, Y_cat, place=col[i%3])
+        else:
+            X_cat, Y_cat = xy_data(all_data, cat)
+            bar_graph(f'## {cat}', X_cat, Y_cat, col[i%3])
 
 
 def set_state_params_none(state):

@@ -32,8 +32,14 @@ def section_details(state):
     st.text(state.data_ffbs.get('id'))
     sb = st.beta_columns((2,1,1))
     grade_ffb = sb[0].selectbox('Grades', cat_grade,)
-    temp_raw = sb[1].text_input('Temperature (Celcius)', state.data_ffbs.get('temp_raw') if state.data_ffbs.get('temp_raw') else '')
-    lux_raw = sb[2].text_input('Light Intensity (Lux)', state.data_ffbs.get('lux_raw') if state.data_ffbs.get('lux_raw') else '')
+    temp_raw = sb[1].number_input(label= 'Temperature (Celcius)', 
+                                value= state.data_ffbs.get('temp_raw') if state.data_ffbs.get('temp_raw') else 0.0, 
+                                step=0.01, 
+                                format="%.2f")
+    lux_raw = sb[2].number_input(label= 'Light Intensity (Lux)', 
+                                value= state.data_ffbs.get('lux_raw') if state.data_ffbs.get('lux_raw') else 0, 
+                                step=1,
+                                format="%d")
 
 
     sb = st.beta_columns((1,1,1,1))
@@ -142,8 +148,6 @@ def form_page(state):
     # valid_img = image_validation(data)
     btn_submit = st.button('Submit Data')
     
-
-
     valid_img = isThereImage(state)
     is_complete = True
 
@@ -159,12 +163,12 @@ def form_page(state):
         st.sidebar.warning('🖼️ Pls fill **image**!')
         # print('Please fill image!')
 
-    if state.data_ffbs.get('temp_raw') == "":
+    if state.data_ffbs.get('temp_raw') == 0.0:
         st.sidebar.warning('🌡️ Pls fill the **Temperature** Value!')
         # print('Pls fill the Temperature Value!')
         is_complete=False
 
-    if state.data_ffbs.get('lux_raw') == "":
+    if state.data_ffbs.get('lux_raw') == 0:
         st.sidebar.warning('☀️ Pls fill the **Lux** Value!')
         # print('Please fill the Lux Value!')
         is_complete=False

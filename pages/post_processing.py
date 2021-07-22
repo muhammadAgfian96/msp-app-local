@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 from skimage import io
 import stapipy as sp
 
+import plotly.express as px
+import plotly.figure_factory as ff
+import plotly
+import plotly.graph_objects as go
+from PIL import Image
+
 def post_processing_page(state):
     with st.beta_expander('Convert StapiRaw to TIF'):
         sb = st.beta_columns((2,1))
@@ -28,10 +34,24 @@ def post_processing_page(state):
         sb = st.beta_columns((3,1))
         state.pp_folder_stapiraw = sb[0].text_input('Folder 1 StapiRaw', state.pp_folder_stapiraw if state.pp_folder_stapiraw else '.')
         # state.pp_file_stapiraw = sb[1].text_input('File Stapiraw-', state.pp_main_folder if state.pp_main_folder else '.')
-        col = st.beta_columns((1,3))
+        type_hist = ['Un-normalized', 'Normalized']
+        state.pp_hist_type = st.radio('Type Histogram',type_hist , type_hist.index(state.pp_hist_type) if state.pp_hist_type else 0 )
+        col = st.beta_columns((1,1,1,1))
         state.pp_bins = col[0].selectbox('bins', [64, 128, 256, 512,1024], index=2)
-        
-        if st.button('Generate'):
+        if state.pp_hist_type == type_hist[0]:
+            # Un-normalized
+            if type(state.pp_max_y) == float:
+                state.pp_max_y = 60000
+            state.pp_max_x = col[1].number_input(label= 'Max X Axis')
+            state.pp_max_y = col[2].number_input('Max Y Axis', value = state.pp_max_y if state.pp_max_y else 60000, format='%d')
+
+        if state.pp_hist_type == type_hist[1]:
+            # normalized
+            if type(state.pp_max_y) == int or state.pp_max_y>1:
+                state.pp_max_y = 0.025
+            state.pp_max_x = col[1].number_input(label= 'Max X Axis')
+            state.pp_max_y = col[2].number_input('Max Y Axis', value = float(state.pp_max_y) if state.pp_max_y else 0.025 ,step=0.01,format="%.3f")
+        if st.button(f'Generate {state.pp_hist_type}'):
             histogram(state)
             st.success('Succes Convert')
 
@@ -138,7 +158,6 @@ def splitting(path_tif, name_file, model_folder, put_text):
     cv2.imwrite(blue_file, blue)
     cv2.imwrite(yellow_file, yellow)
 
-
     img1=np.hstack([blue, green])
     img2=np.hstack([yellow, red])
     img_all=np.vstack([img1,img2])
@@ -153,46 +172,70 @@ def histogram(state):
 
     ext_ = ['_820nm.tif', '_735nm.tif', '_580nm.tif', '_660nm.tif']
     files = [os.path.join(model_folder, name_file+ex) for ex in ext_]
+
+    hist_data = []
+    line_data = []
     for file in files:
         image = io.imread(file) 
-        # plt.hist(image.ravel(), bins=state.pp_bins)
-        # plt.title(file.split('/')[-1])
-        # x1,x2,y1,y2=plt.axis()
-        # plt.axis((x1,x2,0,2000))
-        # plt.savefig(file.split('.tif')[0]+'_hist.jpg')
-        # plt.close()
 
-
-        # plt.figure()
-        # io.imshow(im)
-        # plt.show()
-    
-        # UNNORMALIZED HISTOGRAM - useful to look at original pattern
         h = [(image==v).sum() for v in range(256)]
+        if state.pp_hist_type == 'Un-normalized':
+            # UNNORMALIZED HISTOGRAM - useful to look at original pattern
+            file_path = file.split('.tif')[0]+'_hist_UNnormalized.jpeg' 
+            hist_data.append(np.asarray(image).flatten())
+            line_data.append(h)
+
+            plt.figure()
+            plt.bar(range(256), h)
+            title = file.split('/')[-1]+'_UNnormalized'
+            plt.title(title)
+
+            x1,x2,y1,y2=plt.axis()
+            if state.pp_max_x == 0:
+                sel_x2 = x2
+            if state.pp_max_y == 0:
+                sel_y2 = y2
+            else:
+                sel_y2 = state.pp_max_y
+
+            plt.axis((x1, sel_x2, 0, sel_y2))
+            plt.savefig(file_path)
+            plt.close()
         
-        plt.figure()
-        plt.bar(range(256), h)
-        plt.title(file.split('/')[-1]+'_UNnormalized')
-        x1,x2,y1,y2=plt.axis()
-        plt.axis((x1,x2,0, 6000))
-        plt.savefig(file.split('.tif')[0]+'_hist_UNnormalized.jpg')
-        plt.close()
+        if state.pp_hist_type == 'Normalized':
+            # NORMALISED HISTOGRAM - needed to compare different histograms
+            file_path = file.split('.tif')[0]+'_hist_Normalized.jpeg' 
+            h = np.array(h)
+            norm_h = h/h.sum()
+            hist_data.append(np.asarray(image).flatten())
+            title = file.split('/')[-1]+'_normalized'
+            line_data.append(norm_h)
+
+            plt.figure()
+            plt.bar(range(256), norm_h)
+            plt.title(title)
+            x1,x2,y1,y2=plt.axis()
+            if state.pp_max_x == 0.0:
+                sel_x2 = x2
+            else:
+                sel_x2 = state.pp_max_x
+
+            if state.pp_max_y == 0.0:
+                sel_y2 = y2
+            else:
+                sel_y2 = state.pp_max_y
+            plt.axis((x1, sel_x2, 0.0, sel_y2))
+            plt.savefig(file_path)
+            plt.close()
+
         
-        
-        # NORMALISED HISTOGRAM - needed to compare different histograms
-        h = np.array(h)
-        norm_h = h/h.sum()
-        
-        plt.figure()
-        plt.bar(range(256), norm_h)
-        plt.title(file.split('/')[-1]+'_normalized')
-        x1,x2,y1,y2=plt.axis()
-        plt.axis((x1,x2,0,0.025))
-        plt.savefig(file.split('.tif')[0]+'_hist_Normalized.jpg')
-        plt.close()
-        
-        #plt.savefig(file)        
-        
-        
-        
-        
+    group_labels = ['820 nm', '735 nm', '580 nm', '660 nm']
+    colors = ['red', 'green', 'blue', 'yellow']
+    fig = go.Figure()
+    for data, name, line_y,col in zip(hist_data, group_labels, line_data, colors) :
+        fig.add_trace(go.Scatter(x=[x for x in range(0, 256)], y = line_y, name=name , line=dict(color=col)))
+    fig.update_layout(title_text=title,    xaxis_title_text='Value',  yaxis_title_text='Count')
+    fig.update_layout(barmode='overlay')
+    fig.update_traces(opacity=0.95)
+    fig.write_image(file_path+f'_{state.pp_hist_type}_merge.svg', width=1980, height=1080)
+    plotly.offline.plot(fig, filename=file_path.replace('.jpeg', '_merge.html'))

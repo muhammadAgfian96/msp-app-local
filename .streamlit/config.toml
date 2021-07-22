@@ -1,0 +1,12 @@
+[server]
+port = 1234
+
+[browser]
+serverPort = 1234
+
+[theme]
+primaryColor = "#DC982B"
+backgroundColor = "#f9f6f4"
+secondaryBackgroundColor = "#5B5151"
+textColor = "#DC982B"
+font = "monospace"

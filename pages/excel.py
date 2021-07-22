@@ -50,6 +50,12 @@ def excel_page(state):
         os.remove('db_ffbs.csv')
         status_zip.success(f'Old Data Deleted!')
 
+
+
+
+
+
+# --------------- section --------------------------
 def clean_db_images():
     path = os.path.join('db_images')
     ls_img = os.listdir(path)
