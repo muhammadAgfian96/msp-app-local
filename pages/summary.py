@@ -32,7 +32,7 @@ def data_viz(all_data):
                     "title": title.split(' ')[-1].upper(),
                     "xaxis": {"title": title.split(' ')[-1], 'side': 'bottom'},
                     "yaxis": {"title": "count"},
-                    'autosize':True,
+                    'autosize': True,
             }
         fig = go.Figure(
             [go.Bar(
@@ -228,8 +228,7 @@ def sidebar_summarize(state):
 
         col_1, col_2 = sb.beta_columns((1,1))
         state.sel_pest_damaged = col_1.multiselect('pest_damaged', state.default['pest_damaged'], state.sel_wet if state.sel_wet else state.default['pest_damaged'])
-        # min_value=state.default['temp_low_high'][0], max_value=state.default['temp_low_high'][1]
-        # min_value=state.default['lux_low_high'][0], max_value=state.default['lux_low_high'][1]
+
         state.sel_temp_range = st.sidebar.slider('temp', min_value=state.default['temp_low_high'][0], max_value=state.default['temp_low_high'][1], value= state.sel_temp_range if state.sel_temp_range else state.default['temp_low_high'])
         state.sel_lux_range = st.sidebar.slider('lux',   min_value=state.default['lux_low_high'][0], max_value=state.default['lux_low_high'][1], value=state.sel_lux_range if state.sel_lux_range else state.default['lux_low_high'])
 
@@ -273,7 +272,6 @@ def summarize_page(state):
     st.write(f'### We have {len_Data} data point')
     data_viz(all_data)
     st.write(all_data)
-    
 
 def sidebar(pages):
     st.sidebar.write('## Navigation')

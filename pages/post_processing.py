@@ -170,8 +170,10 @@ def histogram(state):
     model_folder = state.pp_folder_stapiraw
     name_file = model_folder.split('/')[-1]
 
-    ext_ = ['_820nm.tif', '_735nm.tif', '_580nm.tif', '_660nm.tif']
-    files = [os.path.join(model_folder, name_file+ex) for ex in ext_]
+    ext_ = ['_820nm.png', '_735nm.png', '_580nm.png', '_660nm.png', 
+            '_820nm.tif', '_735nm.tif', '_580nm.tif', '_660nm.tif',            
+            ]
+    files = [os.path.join(model_folder, name_file+ex) for ex in ext_ if os.path.exists(os.path.join(model_folder, name_file+ex))]
 
     hist_data = []
     line_data = []

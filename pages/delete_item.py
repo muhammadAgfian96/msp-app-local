@@ -57,7 +57,6 @@ def show_delete(state, all_data):
             isDeleted, id_deleted = db_csv.delete_one_file(id_)
             if isDeleted:
                 c1,c2=st.beta_columns((1,1))
-
                 state.default = db_csv.get_default_value()
                 print(state.default)
                 set_state_params_none(state)
