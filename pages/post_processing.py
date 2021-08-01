@@ -168,28 +168,33 @@ def splitting(path_tif, name_file, model_folder, put_text):
 def histogram(state):
 
     model_folder = state.pp_folder_stapiraw
-    name_file = model_folder.split('/')[-1]
-
+    name_file = model_folder.split('\\')[-1] #based on windows
+    print(model_folder, name_file, state.pp_hist_type)
     ext_ = ['_820nm.png', '_735nm.png', '_580nm.png', '_660nm.png', 
             '_820nm.tif', '_735nm.tif', '_580nm.tif', '_660nm.tif',            
             ]
-    files = [os.path.join(model_folder, name_file+ex) for ex in ext_ if os.path.exists(os.path.join(model_folder, name_file+ex))]
 
+    files = [os.path.join(model_folder, name_file+ex) for ex in ext_ if os.path.exists(os.path.join(model_folder, name_file+ex))]
+    print(files)
     hist_data = []
     line_data = []
     for file in files:
+        print(file)
         image = io.imread(file) 
 
         h = [(image==v).sum() for v in range(256)]
         if state.pp_hist_type == 'Un-normalized':
             # UNNORMALIZED HISTOGRAM - useful to look at original pattern
-            file_path = file.split('.tif')[0]+'_hist_UNnormalized.jpeg' 
+            if '.tif' in file:
+                file_path = file.split('.tif')[0]+'_hist_UNnormalized.jpeg' 
+            if '.png' in file:
+                file_path = file.split('.png')[0]+'_hist_UNnormalized.jpeg' 
             hist_data.append(np.asarray(image).flatten())
             line_data.append(h)
 
             plt.figure()
             plt.bar(range(256), h)
-            title = file.split('/')[-1]+'_UNnormalized'
+            title = file.split('\\')[-1]+'_UNnormalized'
             plt.title(title)
 
             x1,x2,y1,y2=plt.axis()
@@ -206,11 +211,14 @@ def histogram(state):
         
         if state.pp_hist_type == 'Normalized':
             # NORMALISED HISTOGRAM - needed to compare different histograms
-            file_path = file.split('.tif')[0]+'_hist_Normalized.jpeg' 
+            if '.tif' in file:
+                file_path =  file.split('.tif')[0]+'_hist_Normalized.jpeg'
+            if '.png' in file:
+                file_path = file.split('.png')[0]+'_hist_Normalized.jpeg' 
             h = np.array(h)
             norm_h = h/h.sum()
             hist_data.append(np.asarray(image).flatten())
-            title = file.split('/')[-1]+'_normalized'
+            title = file.split('\\')[-1]+'_normalized'
             line_data.append(norm_h)
 
             plt.figure()
