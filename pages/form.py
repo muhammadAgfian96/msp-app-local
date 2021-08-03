@@ -255,8 +255,8 @@ def form_page(state):
         st.success('Succes!')
         
         if isSuccesInput:
-            state.frame_rgb = None
-            state.frame_msp = None
+            state.frame_rgbs = None
+            state.frame_msps = None
             state.raw_img = None
             grader_name = state.data_ffbs.get('grader_name')
             state.data_ffbs = {}

@@ -57,10 +57,14 @@ class CsvHandler:
             # stapiraw
             for i, path_stapiraw in enumerate(ls_stapiraw_file):
                 print('move here')
-                shutil.move(path_stapiraw, os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + f'_{i}.jpg'))
+                shutil.move(path_stapiraw, os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + f'_{i}.StApiRaw'))
+            
+            ls_msp_done = []
             for i, path_msp in enumerate(ls_msp_jgp_file):
                 print('move here')
-                shutil.move(path_msp, os.path.join(self.folder_image, 'msp_' + str(self.id_) + f'_{i}.jpg'))
+                dst = os.path.join(self.folder_image, 'msp_' + str(self.id_) + f'_{i}.jpg')
+                shutil.move(path_msp, dst)
+                ls_msp_done.append(dst)
 
             # file_stapiraw_loc = os.path.join('temp_msp',
             #                                 'temporary_msp' + ".StApiRaw")
@@ -82,7 +86,7 @@ class CsvHandler:
             return False, path_imgs
 
         path_imgs = {
-            'msp_path' : "|".join(ls_stapiraw_file),
+            'msp_path' : "|".join(ls_msp_done),
             'rgb_path' : "|".join(ls_path_rgb)
         }
         print('succes create image')

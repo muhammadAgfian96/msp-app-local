@@ -24,7 +24,7 @@ def start_capturing(state, start_stream, idx_frame, frameST):
             state.start_rgb1 = False
             state.stop_rgb1 = False
             break
-        state.frame_rgbs[idx_frame] = increase_brightness(state, state.frame_rgbs[idx_frame])
+        # state.frame_rgbs[idx_frame] = increase_brightness(state, state.frame_rgbs[idx_frame])
         frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
     cap.release()
     print('cap release')
