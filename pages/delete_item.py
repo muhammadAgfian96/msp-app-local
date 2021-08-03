@@ -20,7 +20,7 @@ def show_delete(state, all_data):
     data_dict['msp_path'] = list(all_data['msp_path'].values.tolist())
     data_dict['time_input'] = list(all_data['date'].values)
     data_dict['id'] = list(all_data.index.tolist())
-    print(data_dict['time_input'])
+    # print(data_dict['time_input'])
     status_btn = {}
 
     c = st.beta_columns((1,1,1,1,1,1))
@@ -42,8 +42,10 @@ def show_delete(state, all_data):
 
         c[0].write(date_add)
         # c[1].write(data['_id'])
-        c[1].image(data_dict['rgb_path'][i], width=150)
-        c[2].image(data_dict['msp_path'][i], width=150)
+        path_rgb_1 = data_dict['rgb_path'][i].split('|')[0]
+        path_msp_1 = data_dict['msp_path'][i].split('|')[0]
+        c[1].image(path_rgb_1, width=150)
+        c[2].image(path_msp_1, width=150)
         c[3].write(data_dict['grader_name'][i])
         c[4].write(data_dict['grade_ffb'][i])
         state_btn = c[5].button(f'delete {str(data_dict["id"][i])[0:10]}')

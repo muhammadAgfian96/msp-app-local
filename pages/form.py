@@ -75,32 +75,98 @@ def section_image(state):
     st.write('## Images Data')
     colss = st.beta_columns((1,1,1,1))
     sb_1, sb_2 = st.beta_columns((1,1))
+    sb11, sb12, sb21, sb22 = st.beta_columns((1,1,1,1))
     # img_rgb = sb_1.file_uploader('Images',type=['.jpg', '.jpeg', '.png'])
     # img_msp = sb_2.file_uploader('Multispectral',type=['.jpg', '.jpeg', '.png'], accept_multiple_files=True)
-    frameST1 = sb_1.empty()
-    frameST2 = sb_2.empty()
 
-    state.start_rgb = colss[0].button('Start Capture RGB')
-    state.stop_rgb = colss[1].button('Capture RGB')
-    if state.start_rgb:
-        state.frame_rgb = start_capturing(state, frameST1)
-        print('capture')
-    if state.frame_rgb is not None:
-        frameST1.image(state.frame_rgb, channels="BGR")
+
+    state.start_rgb1 = sb11.button('Start Streaming 1')
+    state.start_rgb2 = sb12.button('Start Streaming 2')
+    state.start_rgb3 = sb11.button('Start Streaming 3')
+    state.start_rgb4 = sb12.button('Start Streaming 4')
+
+    state.start_msp1 = sb21.button('Capture MSP 1')
+    state.start_msp2 = sb22.button('Capture MSP 2')
+    state.start_msp3 = sb21.button('Capture MSP 3')
+    state.start_msp4 = sb22.button('Capture MSP 4')
+    state.capture = st.button('Capture')
+
+
+
+    frameST_rgb_1 = sb11.empty()
+    frameST_rgb_2 = sb12.empty()
+    frameST_rgb_3 = sb11.empty()
+    frameST_rgb_4 = sb12.empty()
+
+    frameST_msp_1 = sb21.empty()
+    frameST_msp_2 = sb22.empty()
+    frameST_msp_3 = sb21.empty()
+    frameST_msp_4 = sb22.empty()
+
+
+    state.frame_rgbs = [None, None, None, None] if state.frame_rgbs is None else state.frame_rgbs
+    state.frame_msps = [None, None, None, None] if state.frame_msps is None else state.frame_msps
+    if state.start_rgb1:
+        print('capture 1')
+        state.frame_rgbs[0]= start_capturing(state, state.start_rgb1, 0, frameST_rgb_3)
+
+    if state.start_rgb2:
+        print('capture 2')
+        state.frame_rgbs[1] = start_capturing(state, state.start_rgb2, 1, frameST_rgb_2)
+
+    if state.start_rgb3:
+        print('capture 3')
+        state.frame_rgbs[2] = start_capturing(state, state.start_rgb3, 2, frameST_rgb_3)
+    
+    if state.start_rgb4:
+        print('capture 3')
+        state.frame_rgbs[3] = start_capturing(state, state.start_rgb4, 3, frameST_rgb_4)
+
+    # display
+    if state.frame_rgbs[0] is not None:
+        frameST_rgb_1.image(state.frame_rgbs[0], channels="BGR", caption='RGB 1 (required)')
+    if state.frame_rgbs[1] is not None:
+        frameST_rgb_2.image(state.frame_rgbs[1], channels="BGR", caption='RGB 2 (optional)')
+    if state.frame_rgbs[2] is not None:
+        frameST_rgb_3.image(state.frame_rgbs[2], channels="BGR", caption='RGB 3 (optional)')
+    if state.frame_rgbs[3] is not None:
+        frameST_rgb_4.image(state.frame_rgbs[3], channels="BGR", caption='RGB 4 (optional)')
         
 
-    state.start_msp = colss[2].button('Take Capture MSP')
     # state.stop_msp = colss[3].button('Capture MSP')
-    if state.start_msp:
-        with st.spinner('Progress ... Take Picture MSP'):
-            save_msp_now()
-            # state.frame_msp = start_capturing_msp(state, frameST2)
-            file_msp_loc = os.path.join('temp_msp',
-                                        'temporary_msp' + ".jpg")
-            state.frame_msp = Image.open(file_msp_loc)
+    if state.start_msp1:
+        with st.spinner('Progress ... Take Picture MSP 1'):
+            file_name = '1'
+            save_msp_now(file_name)
+            file_msp_loc = os.path.join('temp_msp','temporary_msp' +file_name +".jpg")
+            state.frame_msps[0] = Image.open(file_msp_loc)
+    if state.start_msp2:
+        with st.spinner('Progress ... Take Picture MSP 2'):
+            file_name = '2'
+            save_msp_now(file_name)
+            file_msp_loc = os.path.join('temp_msp','temporary_msp' +file_name +".jpg")
+            state.frame_msps[1] = Image.open(file_msp_loc)
+    if state.start_msp3:
+        with st.spinner('Progress ... Take Picture MSP 3'):
+            file_name = '3'
+            save_msp_now(file_name)
+            file_msp_loc = os.path.join('temp_msp','temporary_msp' +file_name +".jpg")
+            state.frame_msps[2] = Image.open(file_msp_loc)
+    if state.start_msp4:
+        with st.spinner('Progress ... Take Picture MSP 4'):
+            file_name = '4'
+            save_msp_now(file_name)
+            file_msp_loc = os.path.join('temp_msp','temporary_msp' +file_name +".jpg")
+            state.frame_msps[3] = Image.open(file_msp_loc)
 
-    if state.frame_msp is not None:
-        frameST2.image(state.frame_msp) # only single channels (gray)
+    if state.frame_msps[0] is not None:
+        frameST_msp_1.image(state.frame_msps[0], caption='MSP 1 (required)') # only single channels (gray)
+    if state.frame_msps[1] is not None:
+        frameST_msp_2.image(state.frame_msps[1], caption='MSP 2 (optional)') # only single channels (gray)
+    if state.frame_msps[2] is not None:
+        frameST_msp_3.image(state.frame_msps[2], caption='MSP 3 (optional)') # only single channels (gray)
+    if state.frame_msps[3] is not None:
+        frameST_msp_4.image(state.frame_msps[3], caption='MSP 4 (optional)') # only single channels (gray)
 
 def form(state):
     uni_id = uuid4().hex
@@ -128,7 +194,6 @@ def form(state):
         st.write('## Camera MSP Settings')
 
     with st.beta_expander('Camera', False):
-
         section_image(state)
 
     section_details(state)
@@ -137,7 +202,14 @@ def form(state):
 
 def isThereImage(state):
     valid_img = True
-    if state.frame_msp is None or state.frame_rgb is None:
+    if len(state.frame_rgbs) == 0:
+        valid_img = False
+    if state.frame_rgbs[0] is None:
+        valid_img = False
+
+    if len(state.frame_msps) == 0:
+        valid_img = False
+    if state.frame_msps[0] is None:
         valid_img = False
     return valid_img
 
@@ -178,7 +250,7 @@ def form_page(state):
         st.write(state.data_ffbs)
         isSuccesInput, resetData = db_csv.submit(
                 data_ffbs = state.data_ffbs.copy(),
-                frame_rgb = state.frame_rgb
+                frame_rgbs = state.frame_rgbs # is list 4 img
             )
         st.success('Succes!')
         
@@ -188,7 +260,7 @@ def form_page(state):
             state.raw_img = None
             grader_name = state.data_ffbs.get('grader_name')
             state.data_ffbs = {}
-            time.sleep(0.5)
+            time.sleep(0.25)
             state.data_ffbs.update({'id':'here_id', 'grader_name' : grader_name})
             state.isSuccesInput = True
         else:

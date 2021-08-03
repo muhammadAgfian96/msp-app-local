@@ -7,24 +7,25 @@ from msp_cam.msp import CMyCallback as MSP_Callback
 
 
 
-def start_capturing(state, frameST):
+def start_capturing(state, start_stream, idx_frame, frameST):
     cap = cv2.VideoCapture(state.sel_port_camera)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(state.sel_resolution_camera[0]))
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(state.sel_resolution_camera[1]))
-    while state.start_rgb:
-        ret, state.frame_rgb = cap.read()
+    while start_stream:
+        ret, state.frame_rgbs[idx_frame] = cap.read()
+        # print('read')
         # Stop the program if reached end of video
-        if not ret or state.stop_rgb == True:
+        if not ret == True:
             print("Done processing !!!")
             frameST.write('Done Capturing')
-            frameST.image(state.frame_rgb, channels="BGR")
+            frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
             # Release device
             cap.release()
-            state.start_rgb = False
-            state.stop_rgb = False
+            state.start_rgb1 = False
+            state.stop_rgb1 = False
             break
-        state.frame_rgb = increase_brightness(state, state.frame_rgb)
-        frameST.image(state.frame_rgb, channels="BGR")
+        state.frame_rgbs[idx_frame] = increase_brightness(state, state.frame_rgbs[idx_frame])
+        frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
     cap.release()
     print('cap release')
     return state.frame_rgb

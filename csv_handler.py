@@ -22,44 +22,56 @@ class CsvHandler:
         self.root_path_img = root_path
         self.df = None
 
-    def process_image(self, frame_rgb):
+    def process_image(self, frame_rgbs):
         # check forlder,
         if not os.path.exists(self.folder_image):
             # make
             os.makedirs(self.folder_image)
 
         # write
-        stapiraw_path = os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + ".StApiRaw")
-        rgb_path = os.path.join(self.folder_image, 'rgb_' + str(self.id_) + '.jpg')
+        # stapiraw_path = os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + ".StApiRaw")
+                
+        ls_stapiraw_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.StApiRaw' in path_file]
+        ls_msp_jgp_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.jpg' in path_file]
+        
+        ls_path_rgb = []
+        ls_frame = []
+        
+        # define name,
+        for i,frame in enumerate(frame_rgbs):
+            if frame is not None:
+                ls_path_rgb.append(os.path.join(self.folder_image, 'rgb_' + str(self.id_) + f'_{i}.jpg'))
+                ls_frame.append(frame)
         msp_path = os.path.join(self.folder_image, 'msp_' + str(self.id_) + '.jpg')
         path_imgs = {
                     'msp_path' : msp_path,
-                    'rgb_path' : rgb_path
+                    'rgb_path' : "|".join(ls_path_rgb)
                 }
-        print(frame_rgb)
+
         error = False
 
         try:
-
-            cv2.imwrite(rgb_path, frame_rgb)
-            # cv2.imwrite(msp_path, frame_msp)
-            file_stapiraw_loc = os.path.join('temp_msp',
-                                            'temporary_msp' + ".StApiRaw")
-            file_jpg_loc = os.path.join('temp_msp',
-                                'temporary_msp' + ".jpg")
-            print('move here')
-            shutil.move(file_stapiraw_loc, stapiraw_path)
-            print('move there')
-            shutil.move(file_jpg_loc, msp_path)
-            print('done move there')
-
+            for path_rgb, frame_rgb in zip(ls_path_rgb,ls_frame):
+                cv2.imwrite(path_rgb, frame_rgb)
             
-            # print('write image')
-            # print('running raw')
-            # isSavedMsp, stapiraw_path = save_stapiraw(raw_msp, stapiraw_path)
-            # print('get stapiraw')
-            
-            # save_stapiraw_to_imgs(stapiraw_path)
+            # stapiraw
+            for i, path_stapiraw in enumerate(ls_stapiraw_file):
+                print('move here')
+                shutil.move(path_stapiraw, os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + f'_{i}.jpg'))
+            for i, path_msp in enumerate(ls_msp_jgp_file):
+                print('move here')
+                shutil.move(path_msp, os.path.join(self.folder_image, 'msp_' + str(self.id_) + f'_{i}.jpg'))
+
+            # file_stapiraw_loc = os.path.join('temp_msp',
+            #                                 'temporary_msp' + ".StApiRaw")
+            # file_jpg_loc = os.path.join('temp_msp',
+            #                     'temporary_msp' + ".jpg")
+            # print('move here')
+            # shutil.move(file_stapiraw_loc, stapiraw_path)
+            # print('move there')
+            # shutil.move(file_jpg_loc, msp_path)
+            # print('done move there')
+
             print('save imgs msp')
 
         except :
@@ -70,13 +82,13 @@ class CsvHandler:
             return False, path_imgs
 
         path_imgs = {
-            'msp_path' : msp_path,
-            'rgb_path' : rgb_path
+            'msp_path' : "|".join(ls_stapiraw_file),
+            'rgb_path' : "|".join(ls_path_rgb)
         }
         print('succes create image')
         return True, path_imgs
 
-    def submit(self, data_ffbs, frame_rgb):
+    def submit(self, data_ffbs, frame_rgbs:list):
         self.id_ = data_ffbs.get('id')
         self.folder_image = os.path.join(self.root_path_img, self.id_)
         
@@ -85,7 +97,7 @@ class CsvHandler:
         })
 
         # save_image
-        isValid, path_imgs = self.process_image(frame_rgb)
+        isValid, path_imgs = self.process_image(frame_rgbs)
         data_ffbs.update(path_imgs)
         field_names = list(data_ffbs.keys())
 

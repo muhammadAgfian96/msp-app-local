@@ -5,7 +5,7 @@ import tempfile
 import stapipy as st
 
 
-def save_img():
+def save_img(file_name=''):
     # Number of images to grab
     number_of_images_to_grab = 1
 
@@ -24,8 +24,7 @@ def save_img():
 
         # File for image file
         filename_prefix = st_device.info.display_name
-        file_location = os.path.join('temp_msp',
-                                    'temporary_msp' + ".StApiRaw")
+        file_location_stapiraw = os.path.join('temp_msp', 'temporary_msp_'+ file_name + ".StApiRaw")
 
         # Create a datastream object for handling image stream data.
         st_datastream = st_device.create_datastream()
@@ -52,9 +51,9 @@ def save_img():
                 st_stillimage_filer = st.create_filer(st.EStFilerType.StillImage)
 
                 # Save the image file as StApiRaw file format.
-                print("Saving {0} ... ".format(file_location), end="")
+                print("Saving {0} ... ".format(file_location_stapiraw), end="")
                 st_stillimage_filer.save(st_image,
-                    st.EStStillImageFileFormat.StApiRaw, file_location)
+                    st.EStStillImageFileFormat.StApiRaw, file_location_stapiraw)
                 print("done.")
                 is_image_saved = True
             else:
@@ -72,8 +71,8 @@ def save_img():
             # Load image here the way
             # 1 load stapiraw
             st_stillimage_filer = st.create_filer(st.EStFilerType.StillImage)
-            print("Loading {0} ... ".format(file_location), end="")
-            st_image = st_stillimage_filer.load(file_location)
+            print("Loading {0} ... ".format(file_location_stapiraw), end="")
+            st_image = st_stillimage_filer.load(file_location_stapiraw)
             print("done.")
 
             # 2 Convert image to BGR8 format.
@@ -91,10 +90,9 @@ def save_img():
                         # st.EStStillImageFileFormat.CSV: '.csv',
             }
             for file_format, file_ext in save_list.items():
-                file_location = os.path.join('temp_msp',
-                                    'temporary_msp' + file_ext)
-                print("Saving {0} ... ".format(file_location), end="")
-                st_stillimage_filer.save(st_image, file_format, file_location)
+                file_location_jpg = os.path.join('temp_msp', 'temporary_msp'+file_name + file_ext)
+                print("Saving {0} ... ".format(file_location_jpg), end="")
+                st_stillimage_filer.save(st_image, file_format, file_location_jpg)
                 print("done.")
 
     except Exception as exception:

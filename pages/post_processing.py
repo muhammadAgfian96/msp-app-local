@@ -166,7 +166,6 @@ def splitting(path_tif, name_file, model_folder, put_text):
 
 
 def histogram(state):
-
     model_folder = state.pp_folder_stapiraw
     name_file = model_folder.split('\\')[-1] #based on windows
     print(model_folder, name_file, state.pp_hist_type)
