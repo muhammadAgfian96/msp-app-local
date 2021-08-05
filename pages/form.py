@@ -39,7 +39,7 @@ def section_details(state):
     lux_raw = sb[2].number_input(label= 'Light Intensity (Lux)', 
                                 value= state.data_ffbs.get('lux_raw') if state.data_ffbs.get('lux_raw') else 0, 
                                 step=1,
-                                format="%d")
+                                format="%.2f")
 
 
     sb = st.beta_columns((1,1,1,1))
