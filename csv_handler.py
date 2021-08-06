@@ -248,7 +248,7 @@ class CsvHandler:
             lux_ls.append(lux_ls[0]+1)
 
         default['temp_low_high'] = [temp_ls[0], temp_ls[-1]] # little to big
-        default['lux_low_high'] = [lux_ls[0], lux_ls[-1]]
+        default['lux_low_high'] = [float(lux_ls[0]), float(lux_ls[-1])]
 
         return default
 

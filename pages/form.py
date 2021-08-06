@@ -37,8 +37,8 @@ def section_details(state):
                                 step=0.01, 
                                 format="%.2f")
     lux_raw = sb[2].number_input(label= 'Light Intensity (Lux)', 
-                                value= state.data_ffbs.get('lux_raw') if state.data_ffbs.get('lux_raw') else 0, 
-                                step=1,
+                                value= state.data_ffbs.get('lux_raw') if state.data_ffbs.get('lux_raw') else 0.0, 
+                                step=0.01,
                                 format="%.2f")
 
 
@@ -258,6 +258,8 @@ def form_page(state):
             state.frame_rgbs = None
             state.frame_msps = None
             state.raw_img = None
+            state.data_ffbs['temp_raw'] = 0.00
+            state.data_ffbs['lux_raw'] = 0.00
             grader_name = state.data_ffbs.get('grader_name')
             # state.data_ffbs = {}
             time.sleep(0.25)
