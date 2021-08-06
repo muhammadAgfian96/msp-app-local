@@ -253,13 +253,13 @@ def form_page(state):
                 frame_rgbs = state.frame_rgbs # is list 4 img
             )
         st.success('Succes!')
-        
+
         if isSuccesInput:
             state.frame_rgbs = None
             state.frame_msps = None
             state.raw_img = None
             grader_name = state.data_ffbs.get('grader_name')
-            state.data_ffbs = {}
+            # state.data_ffbs = {}
             time.sleep(0.25)
             state.data_ffbs.update({'id':'here_id', 'grader_name' : grader_name})
             state.isSuccesInput = True
