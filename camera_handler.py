@@ -11,6 +11,8 @@ def start_capturing(state, start_stream, idx_frame, frameST):
     cap = cv2.VideoCapture(state.sel_port_camera)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(state.sel_resolution_camera[0]))
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(state.sel_resolution_camera[1]))
+    state.cap_open = True
+    print('cap open', idx_frame)
     while start_stream:
         ret, state.frame_rgbs[idx_frame] = cap.read()
         # print('read')
@@ -18,17 +20,24 @@ def start_capturing(state, start_stream, idx_frame, frameST):
         if not ret == True:
             print("Done processing !!!")
             frameST.write('Done Capturing')
-            frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
+            if state.frame_rgbs[idx_frame] is not None:
+                frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
+            else:
+                frameST.error('Camera Unplug, or there is problem connection camera')
             # Release device
             cap.release()
+            print('cap release')
+            state.cap_open = False
             state.start_rgb1 = False
             state.stop_rgb1 = False
-            break
+            return state.frame_rgbs[idx_frame]
+        #     break
         # state.frame_rgbs[idx_frame] = increase_brightness(state, state.frame_rgbs[idx_frame])
         frameST.image(state.frame_rgbs[idx_frame], channels="BGR")
     cap.release()
+    state.cap_open= False
     print('cap release')
-    return state.frame_rgb
+    return state.frame_rgbs[idx_frame]
 
 def start_capturing_msp(state, frameST):
     my_callback = MSP_Callback()

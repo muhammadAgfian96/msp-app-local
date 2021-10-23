@@ -84,7 +84,8 @@ def section_image(state):
     state.start_rgb2 = sb12.button('Start Streaming 2')
     state.start_rgb3 = sb11.button('Start Streaming 3')
     state.start_rgb4 = sb12.button('Start Streaming 4')
-
+    if state.cap_open is None:
+         state.cap_open = False
     state.start_msp1 = sb21.button('Capture MSP 1')
     state.start_msp2 = sb22.button('Capture MSP 2')
     state.start_msp3 = sb21.button('Capture MSP 3')
@@ -103,24 +104,39 @@ def section_image(state):
     frameST_msp_3 = sb21.empty()
     frameST_msp_4 = sb22.empty()
 
+    def close_cam(state):
+        if state.cap_open is not None:
+            cap = cv2.VideoCapture(state.sel_port_camera)
+            cap.release()
+            print('close cam')
+        else:
+            print('cam is none')
+
 
     state.frame_rgbs = [None, None, None, None] if state.frame_rgbs is None else state.frame_rgbs
     state.frame_msps = [None, None, None, None] if state.frame_msps is None else state.frame_msps
+    close_cam(state)
+
     if state.start_rgb1:
         print('capture 1')
-        state.frame_rgbs[0]= start_capturing(state, state.start_rgb1, 0, frameST_rgb_3)
+        # state.frame_rgbs[0]= start_capturing(state, state.start_rgb1, 0, frameST_rgb_3)
+        start_capturing(state, state.start_rgb1, 0, frameST_rgb_3)
+        close_cam(state)
 
     if state.start_rgb2:
         print('capture 2')
-        state.frame_rgbs[1] = start_capturing(state, state.start_rgb2, 1, frameST_rgb_2)
+        start_capturing(state, state.start_rgb2, 1, frameST_rgb_2)
+        close_cam(state)
 
     if state.start_rgb3:
         print('capture 3')
-        state.frame_rgbs[2] = start_capturing(state, state.start_rgb3, 2, frameST_rgb_3)
-    
+        start_capturing(state, state.start_rgb3, 2, frameST_rgb_3)
+        close_cam(state)
+
     if state.start_rgb4:
         print('capture 3')
-        state.frame_rgbs[3] = start_capturing(state, state.start_rgb4, 3, frameST_rgb_4)
+        start_capturing(state, state.start_rgb4, 3, frameST_rgb_4)
+        close_cam(state)
 
     # display
     if state.frame_rgbs[0] is not None:
