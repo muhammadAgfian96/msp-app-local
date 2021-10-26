@@ -17,8 +17,8 @@ import plotly.graph_objects as go
 from PIL import Image
 
 def post_processing_page(state):
-    with st.beta_expander('Convert StapiRaw to TIF'):
-        sb = st.beta_columns((2,1))
+    with st.expander('Convert StapiRaw to TIF'):
+        sb = st.columns((2,1))
         state.pp_dst_folder = sb[1].text_input('Folder Destination', state.pp_dst_folder if state.pp_dst_folder else 'db_tiff')
         state.pp_file_stapiraw = sb[0].text_input('File Stapiraw', state.pp_file_stapiraw if state.pp_file_stapiraw else '')
         state.pp_put_text = sb[0].checkbox('Put Text On Splitting Image', state.pp_put_text if state.pp_put_text else False)
@@ -30,13 +30,13 @@ def post_processing_page(state):
             else:
                 st.error('Failed Convert')
 
-    with st.beta_expander('Histogram'):
-        sb = st.beta_columns((3,1))
+    with st.expander('Histogram'):
+        sb = st.columns((3,1))
         state.pp_folder_stapiraw = sb[0].text_input('Folder 1 StapiRaw', state.pp_folder_stapiraw if state.pp_folder_stapiraw else '.')
         # state.pp_file_stapiraw = sb[1].text_input('File Stapiraw-', state.pp_main_folder if state.pp_main_folder else '.')
         type_hist = ['Un-normalized', 'Normalized']
         state.pp_hist_type = st.radio('Type Histogram',type_hist , type_hist.index(state.pp_hist_type) if state.pp_hist_type else 0 )
-        col = st.beta_columns((1,1,1,1))
+        col = st.columns((1,1,1,1))
         state.pp_bins = col[0].selectbox('bins', [64, 128, 256, 512,1024], index=2)
         if state.pp_hist_type == type_hist[0]:
             # Un-normalized

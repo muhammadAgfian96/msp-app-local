@@ -124,14 +124,14 @@ def data_viz(all_data):
         X = [np.nan if x == '' else int(x) for x in X ]
         return X,Y
 
-    col = st.beta_columns((1,1))
+    col = st.columns((1,1))
 
     ls_cat = ['grader_name','grade_ffb']
     for i, cat in enumerate(ls_cat):
         X_cat, Y_cat = xy_data(all_data, cat)
         bar_graph(f'## {cat}', X_cat, Y_cat, col[i%2])
 
-    col = st.beta_columns((1,1,1))
+    col = st.columns((1,1,1))
     ls_cat = ['temp_raw', 'lux_raw', 'pest_damaged', 'long_stalk', 'wet', 'dirty', 'dura', 'old', 'unfresh']
     for i, cat in enumerate(ls_cat):
         if cat  == 'temp_raw':
@@ -204,29 +204,32 @@ def sidebar_summarize(state):
         st.sidebar.warning('No Data')
         return
     state.default = db_csv.get_default_value()
-    state.sel_filter = sb.radio('filter', option_filter, option_filter.index(state.sel_filter) if state.sel_filter else 0)
+    state.sel_filter = sb.radio('filter', 
+        option_filter, 
+        option_filter.index(state.sel_filter) if state['sel_filter'] is None else 0
+    )
     params['filter'] = state.sel_filter
     if state.sel_filter == option_filter[1] :
         # set_state_params_none(state)
-        col_1, col_2 = sb.beta_columns((1,1))
+        col_1, col_2 = sb.columns((1,1))
         state.st_date = col_1.date_input('start date', value= state.st_date if state.st_date else state.default['start_time'])
         state.end_date = col_2.date_input('end date', value= state.end_date if state.end_date else state.default['end_time'] + timedelta(days=1))
         state.sel_grader_name = sb.multiselect('Grader Name', state.default['grader_name'], state.sel_grader_name if state.sel_grader_name else state.default['grader_name'])
         state.sel_grade = sb.multiselect('Grades (Maturity)', state.default['grade_ffb'], state.sel_grade if state.sel_grade else state.default['grade_ffb'])
 
-        col_1, col_2 = sb.beta_columns((1,1))
+        col_1, col_2 = sb.columns((1,1))
         state.sel_unfresh= col_1.multiselect('unfresh', state.default['unfresh'], state.sel_unfresh if state.sel_unfresh else state.default['unfresh'])
         state.sel_old = col_2.multiselect('old', state.default['old'], state.sel_old if state.sel_old else state.default['old'])
         
-        col_1, col_2 = sb.beta_columns((1,1))
+        col_1, col_2 = sb.columns((1,1))
         state.sel_dura = col_1.multiselect('dura', state.default['dura'], state.sel_dura if state.sel_dura else state.default['dura'])
         state.sel_dirty = col_2.multiselect('dirty', state.default['dirty'], state.sel_dirty if state.sel_dirty else state.default['dirty'])
         
-        col_1, col_2 = sb.beta_columns((1,1))
+        col_1, col_2 = sb.columns((1,1))
         state.sel_wet = col_1.multiselect('wet', state.default['wet'], state.sel_wet if state.sel_wet else state.default['wet'])
         state.sel_long_stalk = col_2.multiselect('long_stalk', state.default['long_stalk'], state.sel_long_stalk if state.sel_long_stalk else state.default['long_stalk'])
 
-        col_1, col_2 = sb.beta_columns((1,1))
+        col_1, col_2 = sb.columns((1,1))
         state.sel_pest_damaged = col_1.multiselect('pest_damaged', state.default['pest_damaged'], state.sel_wet if state.sel_wet else state.default['pest_damaged'])
 
         state.sel_temp_range = st.sidebar.slider('temp', min_value=state.default['temp_low_high'][0], max_value=state.default['temp_low_high'][1], value= state.sel_temp_range if state.sel_temp_range else state.default['temp_low_high'])

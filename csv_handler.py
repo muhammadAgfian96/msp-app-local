@@ -30,9 +30,10 @@ class CsvHandler:
 
         # write
         # stapiraw_path = os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + ".StApiRaw")
-                
-        ls_stapiraw_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.StApiRaw' in path_file]
-        ls_msp_jgp_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.jpg' in path_file]
+        
+        # uncomment
+        # ls_stapiraw_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.StApiRaw' in path_file]
+        # ls_msp_jgp_file = [os.path.join('temp_msp', path_file) for path_file in os.listdir('temp_msp') if '.jpg' in path_file]
         
         ls_path_rgb = []
         ls_frame = []
@@ -51,30 +52,21 @@ class CsvHandler:
         error = False
 
         try:
-            for path_rgb, frame_rgb in zip(ls_path_rgb,ls_frame):
+            for path_rgb, frame_rgb in zip(ls_path_rgb, ls_frame):
                 cv2.imwrite(path_rgb, frame_rgb)
             
-            # stapiraw
-            for i, path_stapiraw in enumerate(ls_stapiraw_file):
-                print('move here')
-                shutil.move(path_stapiraw, os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + f'_{i}.StApiRaw'))
+            # stapiraw uncomment
+            # for i, path_stapiraw in enumerate(ls_stapiraw_file):
+            #     print('move here')
+            #     shutil.move(path_stapiraw, os.path.join(self.folder_image, 'stapiraw_' + str(self.id_) + f'_{i}.StApiRaw'))
             
-            ls_msp_done = []
-            for i, path_msp in enumerate(ls_msp_jgp_file):
-                print('move here')
-                dst = os.path.join(self.folder_image, 'msp_' + str(self.id_) + f'_{i}.jpg')
-                shutil.move(path_msp, dst)
-                ls_msp_done.append(dst)
-
-            # file_stapiraw_loc = os.path.join('temp_msp',
-            #                                 'temporary_msp' + ".StApiRaw")
-            # file_jpg_loc = os.path.join('temp_msp',
-            #                     'temporary_msp' + ".jpg")
-            # print('move here')
-            # shutil.move(file_stapiraw_loc, stapiraw_path)
-            # print('move there')
-            # shutil.move(file_jpg_loc, msp_path)
-            # print('done move there')
+            # uncomment
+            # ls_msp_done = []
+            # for i, path_msp in enumerate(ls_msp_jgp_file):
+            #     print('move here')
+            #     dst = os.path.join(self.folder_image, 'msp_' + str(self.id_) + f'_{i}.jpg')
+            #     shutil.move(path_msp, dst)
+            #     ls_msp_done.append(dst)
 
             print('save imgs msp')
 
@@ -86,13 +78,16 @@ class CsvHandler:
             return False, path_imgs
 
         path_imgs = {
-            'msp_path' : "|".join(ls_msp_done),
+            # uncomment
+            # 'msp_path' : "|".join(ls_msp_done),
+            'msp_path' : "",
             'rgb_path' : "|".join(ls_path_rgb)
         }
         print('succes create image')
         return True, path_imgs
 
-    def submit(self, data_ffbs, frame_rgbs:list):
+    def submit(self, data_ffbs, frame_rgbs):
+        print(data_ffbs)
         self.id_ = data_ffbs.get('id')
         self.folder_image = os.path.join(self.root_path_img, self.id_)
         

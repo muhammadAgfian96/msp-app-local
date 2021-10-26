@@ -82,7 +82,7 @@ def clean_db_images():
             prog.progress((i+1)/(len(ls_images_delete)))
 
 
-    col_1, col_2 = st.beta_columns((1,1))
+    col_1, col_2 = st.columns((1,1))
     col_1.write('Matched: ')
     col_1.write(ls_id)
 

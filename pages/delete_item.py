@@ -23,7 +23,7 @@ def show_delete(state, all_data):
     # print(data_dict['time_input'])
     status_btn = {}
 
-    c = st.beta_columns((1,1,1,1,1,1))
+    c = st.columns((1,1,1,1,1,1))
     c[0].write('### **Date**')
     c[1].write('### **RGB Image**')
     c[2].write('### **MSP Image**')
@@ -34,7 +34,7 @@ def show_delete(state, all_data):
     st.markdown('<hr>', unsafe_allow_html=True)
 
     for i, id_ in enumerate(data_dict['id']):
-        c = st.beta_columns((1,1,1,1,1,1))
+        c = st.columns((1,1,1,1,1,1))
         # date_add = data['time_input'].strftime("%a, %d-%b-%Y, %I:%M %p")
         date_add = data_dict['time_input'][i].item()
         date_add = datetime.fromtimestamp(date_add/1e9)
@@ -58,7 +58,7 @@ def show_delete(state, all_data):
         if status_btn[id_]:
             isDeleted, id_deleted = db_csv.delete_one_file(id_)
             if isDeleted:
-                c1,c2=st.beta_columns((1,1))
+                c1,c2=st.columns((1,1))
                 state.default = db_csv.get_default_value()
                 print(state.default)
                 set_state_params_none(state)
