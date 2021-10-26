@@ -226,10 +226,10 @@ def isThereImage(state):
     if state.frame_rgbs[0] is None:
         valid_img = False
 
-    # if len(state.frame_msps) == 0:
-    #     valid_img = False
-    # if state.frame_msps[0] is None:
-    #     valid_img = False
+    if len(state.frame_msps) == 0:
+        valid_img = False
+    if state.frame_msps[0] is None:
+        valid_img = False
 
     return valid_img
 

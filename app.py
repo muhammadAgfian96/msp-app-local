@@ -42,7 +42,7 @@ def main():
         'Delete Item': delete_page,
         'Post Processing': post_processing_page
     }
-    st.write(state.frame_rgbs)
+    # st.write(state.frame_rgbs)
 
     pages[sidebar(pages)](state)
 
